@@ -23,7 +23,6 @@ class Factory
 //       $database = Database::getInstance();
 //       return $database;
 //   }
-
     /**
      * @todo 拿到配置类的对象
      * @param $path

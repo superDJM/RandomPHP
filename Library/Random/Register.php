@@ -19,6 +19,7 @@ class Register
     static function get($key)
     {
         if (!isset(self::$objects[$key])) {
+
 //            $method = 'get' . ucwords($key);
 //            //尝试去调用工厂方法
 //            if(method_exists('Random\\Factory',$method)){
