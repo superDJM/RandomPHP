@@ -34,6 +34,11 @@ class Core
 
     function init()
     {
+        //防止预先输出
+        ob_start();
+
+        //开启session
+        session_start();
 
         require __DIR__ . '/Autoload.php';
         $classLoader = new Autoload();
@@ -100,20 +105,20 @@ class Core
         }
 
         //拼凑命名空间
-        $controller = $module . '\\Controller\\' . $controller;
+        $controllerNameSpace = $module . '\\Controller\\' . $controller;
 
         //检查是否存在controller
-        if (!class_exists($controller)) {
+        if (!class_exists($controllerNameSpace)) {
             throw new \Exception('404,controller:' . $controller . ' not found');
         }
 
         //检查方法是否存在
-        if (!method_exists($controller, $method)) {
+        if (!method_exists($controllerNameSpace, $method)) {
             throw new \Exception('404,method:' . $method . ' not found');
         }
 
         //实例化controller类
-        $class = new $controller();
+        $class = new $controllerNameSpace($module, $controller, $method);
 
         //载入配置
         $config = Factory::getConfig(dirname(dirname(Register::get('autoload')->loadClass($controller))));
@@ -126,6 +131,14 @@ class Core
 
         //执行目标方法
         $response = call_user_func(array($class, $method), $config, $request);
+
+        //如果实例方法没有返回Response对象,则new一个空对象,防止send方法调用失败
+        if (!($response instanceof Response)) {
+            $response = new Response('');
+            if (DEBUG) {
+                trigger_error('response is no defined!');
+            }
+        }
 
         return $response;
     }

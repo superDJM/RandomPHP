@@ -28,7 +28,6 @@ class Response
 
     public function __construct($context, $code = 200, $msg = 'OK', $context_type = '')
     {
-        ob_start();
         $this->code = $code;
         $this->context = $context;
         $this->context_type = empty($context_type) ? 'text/html' : $context_type;

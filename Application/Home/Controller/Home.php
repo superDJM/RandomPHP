@@ -8,10 +8,11 @@
 
 namespace Home\Controller;
 
+use Random\Controller;
 use Random\Factory;
 use Random\Response;
 
-class Home
+class Home extends Controller
 {
 
     /**
@@ -24,6 +25,9 @@ class Home
     function index($config, $request)
     {
         $database = Factory::getDatabase();
-        return new Response('Hello RandomPHP!!');
+//        return new Response('Hello RandomPHP!!');
+        $this->assign('name', 'RandomPHP');
+        $this->display();
+//        return new Response('123');
     }
 }
