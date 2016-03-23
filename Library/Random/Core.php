@@ -46,6 +46,9 @@ class Core
         //载入配置
         $config = Factory::getConfig(__DIR__);
 
+        //注册配置
+        Register::set('config', $config);
+
         if (is_array($config['router'])) {
             //根据配置载入命名空间
             foreach ($config['router'] as $key => $value) {
@@ -60,6 +63,7 @@ class Core
             }
         }
 
+        //注册自动载入类
         Register::set('autoload', $classLoader);
 
         //设置时区
@@ -68,6 +72,7 @@ class Core
         //加载库全局函数
         require __DIR__ . '/Common/functions.php';
 
+        //设置debug选项
         if (DEBUG) {
             ini_set("display_errors", "on");
             error_reporting(E_ALL | E_STRICT);
@@ -91,8 +96,7 @@ class Core
 
         //检查是否存在模块
         if (!is_dir(APP_ROOT . '/' . $module)) {
-            echo '404,module:' . $module . ' not found';
-            exit;
+            throw new \Exception('404,module:' . $module . ' not found');
         }
 
         //拼凑命名空间
@@ -100,14 +104,12 @@ class Core
 
         //检查是否存在controller
         if (!class_exists($controller)) {
-            echo '404,controller:' . $controller . ' not found';
-            exit;
+            throw new \Exception('404,controller:' . $controller . ' not found');
         }
 
         //检查方法是否存在
         if (!method_exists($controller, $method)) {
-            echo '404,method:' . $method . ' not found';
-            exit;
+            throw new \Exception('404,method:' . $method . ' not found');
         }
 
         //实例化controller类
@@ -119,6 +121,7 @@ class Core
         //载入Request
         $request = Factory::getRequest();
 
+        //钩子
         Hook::listen('APP_START');
 
         //执行目标方法

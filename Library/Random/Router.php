@@ -20,7 +20,15 @@ class Router
         $param = Array();
         //        $uri = $_SERVER['SCRIPT_NAME'];
         $uri = $_SERVER['PATH_INFO'];   //使用path_info模式
+        if (empty($uri)) {
+            throw new \Exception("系统不支持path_info");
+        }
         $request = explode('/', trim($uri, '/'), 4);
+
+        //不规范的url,统一定位到Home/Home/index
+        if (count($request) != 3) {
+            return array('Home', 'Home', 'index');
+        }
 
         //get Param
         preg_replace_callback('/([^\/]+)\/([^\/]+)/', function ($match) use (&$param) {

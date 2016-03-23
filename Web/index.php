@@ -21,7 +21,9 @@ require BASE_ROOT . '/Library/Random/Core.php';
 
 $core = Random\Core::getInstance();
 
+//执行
 $response = $core->init()->dispatch();
 
+//输出到浏览器
 $response->send();
 

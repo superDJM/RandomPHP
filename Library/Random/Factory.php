@@ -34,6 +34,11 @@ class Factory
         return $config;
     }
 
+    /**
+     * @return bool
+     * @author DJM <op87960@gmail.com>
+     * @todo 获取请求单例
+     */
     static function getRequest()
     {
         if (empty(Register::get('request'))) {
@@ -41,6 +46,17 @@ class Factory
             Register::set('request', $request);
         }
         return Register::get('request');
+    }
+
+    /**
+     * @return IDatabase
+     * @author DJM <op87960@gmail.com>
+     * @todo  获取数据库单例
+     */
+    static function getDatabase()
+    {
+        $database = Database::getInstance();
+        return $database;
     }
 
 }

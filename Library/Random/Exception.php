@@ -12,11 +12,6 @@ namespace Random;
 class Exception extends \Exception
 {
 
-    public function __construct()
-    {
-
-    }
-
     public static function Register()
     {
         set_exception_handler(array(__CLASS__, 'exception_handler'));

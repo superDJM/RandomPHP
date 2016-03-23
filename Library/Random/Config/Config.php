@@ -6,13 +6,20 @@
  * Time: 下午2:32
  */
 
-$config = Array(
+$config = array(
     'default_timezone' => 'PRC',
-    'hook' => Array(
-        'APP_START' => 'Random\\Hook\\TestHook'
+    'hook' => array(//        'APP_START' => 'Random\\Hook\\TestHook'
     ),
-    'router' => Array(
+    'router' => array(
         'Home\\' => '/Application/Home'
+    ),
+    'database' => array(
+        'type' => 'mysqli',
+        'host' => '127.0.0.1',
+        'username' => 'root',
+        'password' => '',
+        'database' => 'randomphp',
+        'port' => 3306,
     )
 );
 

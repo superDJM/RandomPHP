@@ -8,6 +8,7 @@
 
 namespace Home\Controller;
 
+use Random\Factory;
 use Random\Response;
 
 class Home
@@ -18,14 +19,11 @@ class Home
      * @param $request \Random\Request
      * @return Response
      * @author DJM <op87960@gmail.com>
-     * @todo
+     * @todo 默认目录
      */
     function index($config, $request)
     {
-//        var_dump($request);
-        new Autoload();
-        $config['123'] = 123;;
-
-        return new Response($config['123']);
+        $database = Factory::getDatabase();
+        return new Response('Hello RandomPHP!!');
     }
 }
