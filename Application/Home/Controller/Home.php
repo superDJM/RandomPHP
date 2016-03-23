@@ -8,13 +8,24 @@
 
 namespace Home\Controller;
 
+use Random\Response;
 
 class Home
 {
 
-    function index()
+    /**
+     * @param $config \Random\Config
+     * @param $request \Random\Request
+     * @return Response
+     * @author DJM <op87960@gmail.com>
+     * @todo
+     */
+    function index($config, $request)
     {
-        echo '1213';
-        showTime();
+//        var_dump($request);
+        new Autoload();
+        $config['123'] = 123;;
+
+        return new Response($config['123']);
     }
 }

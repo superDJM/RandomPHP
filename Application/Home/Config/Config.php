@@ -3,11 +3,13 @@
  * Created by PhpStorm.
  * User: dengjiaming
  * Date: 22/3/2016
- * Time: 下午2:32
+ * Time: 下午10:39
  */
 
 $config = Array(
-    'Home\\' => '/Application/Home'
+    'router' => Array(
+        'Home\\' => 'djm'
+    )
 );
 
 return $config;

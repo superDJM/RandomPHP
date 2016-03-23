@@ -30,8 +30,17 @@ class Factory
      */
     public static function getConfig($path)
     {
-        $config = new Config($path);
+        $config = Config::getInstance($path);
         return $config;
+    }
+
+    static function getRequest()
+    {
+        if (empty(Register::get('request'))) {
+            $request = Request::getInstance();
+            Register::set('request', $request);
+        }
+        return Register::get('request');
     }
 
 }
