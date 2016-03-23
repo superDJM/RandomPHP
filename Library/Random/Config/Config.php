@@ -13,6 +13,7 @@ $config = array(
     'router' => array(
         'Home\\' => '/Application/Home'
     ),
+    'suffix' => 'html',
     'database' => array(
         'type' => 'mysqli',
         'host' => '127.0.0.1',

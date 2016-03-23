@@ -23,10 +23,22 @@ class Router
         if (empty($uri)) {
             throw new \Exception("系统不支持path_info");
         }
+
+        //伪静态处理
+        if (false !== $pos = strpos($uri, '.')) {
+            $config = Register::get('config');
+            if (substr($uri, $pos + 1) != $config['suffix']) {
+                throw new \Exception("suffix is not supported");
+            } else {
+                $uri = substr($uri, 0, $pos);
+            }
+        }
+
+        //参数分解
         $request = explode('/', trim($uri, '/'), 4);
 
         //不规范的url,统一定位到Home/Home/index
-        if (count($request) != 3) {
+        if (count($request) < 3) {
             return array('Home', 'Home', 'index');
         }
 
