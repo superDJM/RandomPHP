@@ -57,7 +57,7 @@ class Controller
 
         //在debug模式下存在模版文件则进行编译
         if (file_exists($path)) {
-            if (DEBUG) {
+            if (DEBUG || !file_exists($comFileName)) {
                 $content = file_get_contents($path);
                 $pattern = array(
                     '/{\$([a-zA-Z]*)}/i'
@@ -69,7 +69,7 @@ class Controller
                 //模版的替换
                 preg_replace_callback($pattern, function ($match) use (&$repContent) {
                     $this->data[$match[1]] = empty($this->data[$match[1]]) ? '' : $this->data[$match[1]];
-                    $repContent = str_replace($match[0], "<?php echo \$this->data['$match[1]']; ?>", $repContent);
+                    $repContent = str_replace($match[0], "<?php echo isset(\$this->data['$match[1]'])?\$this->data['$match[1]']:''; ?>", $repContent);
                 }, $content);
                 file_put_contents($comFileName, $repContent);
             }

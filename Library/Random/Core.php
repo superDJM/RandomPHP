@@ -83,7 +83,7 @@ class Core
             error_reporting(E_ALL | E_STRICT);
         } else {
             ini_set("display_errors", "Off");
-            ini_set("log_errors", BASE_ROOT . '/Temp/Logs/error_log.log');
+            ini_set("error_log", BASE_ROOT . '/Temp/Logs/error_log.log');
         }
 
         return $this;
