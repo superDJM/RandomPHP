@@ -9,6 +9,7 @@
 namespace Home\Controller;
 
 use Random\Controller;
+use Random\Db\Pdo;
 use Random\Factory;
 use Random\Response;
 
@@ -32,5 +33,13 @@ class Home extends Controller
         $this->assign('ad', 'RandomPHP');
         $this->assign('some', 'hi');
         $this->display();
+    }
+
+    public function test(){
+        $db = new Pdo();
+        $db->connect('localhost','root','admin123','mysql');
+        $sql = "select User,Password from user";
+        $arr = $db->getArray($sql);
+        var_dump($arr);
     }
 }

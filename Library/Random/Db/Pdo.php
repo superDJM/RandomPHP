@@ -17,9 +17,9 @@ class Pdo implements IDatabase
     function connect($host, $username, $password, $database, $port=3306)
     {
         if (!isset($this->conn)) {
-            $dsn = "mysql:host=$host;dbname=$database";
+            $dsn = "mysql:host='$host';dbname='$database'";
             $this->conn = new \PDO($dsn, $username, $password);
-            if ($this->conn->errorInfo()){
+            if ($this->conn->errorCode() != '00000'){
                 die($this->conn->errorInfo());
             }
 
@@ -37,10 +37,7 @@ class Pdo implements IDatabase
     }
 
     public function getArray($sql){
-        if(empty($this->conn)){
-            die("no connect");
-        }
-        $result = $this->conn->query($sql);
+        $result = $this->query($sql);
         $result->setFetchMode(\PDO::FETCH_ASSOC);
         $arr = $result->fetch();
         return $arr;

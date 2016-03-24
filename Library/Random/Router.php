@@ -40,15 +40,17 @@ class Router
         //不规范的url,统一定位到Home/Home/index
         if (count($request) < 3) {
             return array('Home', 'Home', 'index');
+        }elseif(count($request) > 3){
+            //get Param
+            preg_replace_callback('/([^\/]+)\/([^\/]+)/', function ($match) use (&$param) {
+                $param[strtolower($match[1])] = strip_tags($match[2]);
+            }, array_pop($request));
+
+            //把param加入到$_GET
+            $_GET = array_merge($param, $_GET);
         }
 
-        //get Param
-        preg_replace_callback('/([^\/]+)\/([^\/]+)/', function ($match) use (&$param) {
-            $param[strtolower($match[1])] = strip_tags($match[2]);
-        }, array_pop($request));
 
-        //把param加入到$_GET
-        $_GET = array_merge($param, $_GET);
 
 
         //get Module
