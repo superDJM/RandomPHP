@@ -120,8 +120,11 @@ class Core
         //实例化controller类
         $class = new $controllerNameSpace($module, $controller, $method);
 
+        //Controller的模块目录
+        $modulePath = dirname(dirname(Register::get('autoload')->loadClass($controllerNameSpace)));
+
         //载入配置
-        $config = Factory::getConfig(dirname(dirname(Register::get('autoload')->loadClass($controller))));
+        $config = Factory::getConfig($modulePath);
 
         //载入Request
         $request = Factory::getRequest();

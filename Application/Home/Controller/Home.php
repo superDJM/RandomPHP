@@ -24,10 +24,13 @@ class Home extends Controller
      */
     function index($config, $request)
     {
-        $database = Factory::getDatabase();
+//        $database = Factory::getDatabase();
+        var_dump($config['router']);
+//        var_dump($request->get);
+
 //        return new Response('Hello RandomPHP!!');
-        $this->assign('name', 'RandomPHP');
+        $this->assign('ad', 'RandomPHP');
+        $this->assign('some', 'hi');
         $this->display();
-//        return new Response('123');
     }
 }

@@ -28,6 +28,8 @@
                 -- View
         -- Db               存放数据库备份文件
         -- Library          类库
-        -- Public           公共资源
+        -- Web              网站目录
+            --Public        公共资源
+            index.php       网站唯一入口
         -- Temp             存放缓存和日志
         -- Tests            存放单元测试类
