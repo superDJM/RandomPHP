@@ -6,7 +6,7 @@
  * Time: 下午4:06
  */
 
-namespace Random;
+namespace Random\Http;
 
 /**
  * Class Request

@@ -10,7 +10,8 @@ namespace Home\Controller;
 
 use Random\Controller;
 use Random\Factory;
-use Random\Response;
+use Random\Http\JsonResponse;
+use Random\Http\Response;
 
 class Home extends Controller
 {
@@ -30,9 +31,14 @@ class Home extends Controller
 //        new Autoload();
 
 //        return new Response('Hello RandomPHP!!');
-        $this->assign('ad', 'RandomPHP');
-        $this->assign('some', 'hi');
-        $this->display();
+        //test 模版渲染输出
+//        $this->assign('ad', 'RandomPHP');
+//        $this->assign('some', 'hi');
+//        return new Response($this->display());
+
+        $data['das'] = 123;
+        $data['dd'] = 189;
+        return new JsonResponse($data);
     }
 
     function test()
