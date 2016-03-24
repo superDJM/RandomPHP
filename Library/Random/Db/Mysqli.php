@@ -16,7 +16,9 @@ class Mysqli implements IDatabase
 
     protected $conn;
 
-    function connect($host, $username, $password, $database, $port)
+    protected $data = array();
+
+    function connect($host, $username, $password, $database, $port=3306)
     {
         if (!isset($this->conn)) {
             $this->conn = new \mysqli($host, $username, $password, $database, $port);
@@ -29,9 +31,20 @@ class Mysqli implements IDatabase
 
     function query($sql)
     {
-        $this->connect();
+        if(empty($this->conn)){
+            die("no connect");
+        }
         $result = $this->conn->query($sql);
         return $result;
+    }
+
+    public function getArray($sql){
+        if(empty($this->conn)){
+            die("no connect");
+        }
+        $result = $this->conn->query($sql);
+        $arr = $result->fetch_all(MYSQL_ASSOC);
+        return $arr;
     }
 
     function close()
