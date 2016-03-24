@@ -8,6 +8,7 @@
 
 namespace Random;
 
+use Random\Http\Request;
 
 /**
  * Class Factory

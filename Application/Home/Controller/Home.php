@@ -11,7 +11,8 @@ namespace Home\Controller;
 use Random\Controller;
 use Random\Db\Pdo;
 use Random\Factory;
-use Random\Response;
+use Random\Http\JsonResponse;
+use Random\Http\Response;
 
 class Home extends Controller
 {
@@ -26,13 +27,25 @@ class Home extends Controller
     function index($config, $request)
     {
 //        $database = Factory::getDatabase();
-        var_dump($config['router']);
+//        var_dump($config['router']);
 //        var_dump($request->get);
+//        new Autoload();
 
 //        return new Response('Hello RandomPHP!!');
-        $this->assign('ad', 'RandomPHP');
-        $this->assign('some', 'hi');
-        $this->display();
+        //test 模版渲染输出
+//        $this->assign('ad', 'RandomPHP');
+//        $this->assign('some', 'hi');
+//        return new Response($this->display());
+
+        $data['das'] = 123;
+        $data['dd'] = 189;
+        return new JsonResponse($data);
+    }
+
+    function test()
+    {
+        $database = Factory::getDatabase();
+        var_dump($database->getArray('select * from user'));
     }
 
     public function test(){

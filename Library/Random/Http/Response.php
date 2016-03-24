@@ -6,7 +6,7 @@
  * Time: 下午4:06
  */
 
-namespace Random;
+namespace Random\Http;
 
 /**
  * Class Response
@@ -40,13 +40,13 @@ class Response
         $this->sendContext();
     }
 
-    public function sendHeader()
+    protected function sendHeader()
     {
         header("$this->http_version $this->code $this->msg");
         header("Content-Type:" . $this->context_type . ';charset=' . $this->charset);
     }
 
-    private function sendContext()
+    protected function sendContext()
     {
         echo $this->context;
         ob_end_flush();

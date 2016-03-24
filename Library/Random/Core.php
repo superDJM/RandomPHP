@@ -8,6 +8,8 @@
 
 namespace Random;
 
+use Random\Http\Response;
+
 
 /**
  * Class Core
