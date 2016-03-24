@@ -10,8 +10,9 @@ namespace Random\Db;
 
 use Random\IDatabase;
 
-class Pdo implements IDatabase
+class Pdo extends Db implements IDatabase
 {
+    /** @var $conn \PDO */
     protected $conn;
 
     function connect($host, $username, $password, $database, $port=3306)
@@ -19,8 +20,8 @@ class Pdo implements IDatabase
         if (!isset($this->conn)) {
             $dsn = "mysql:host=$host;dbname=$database";
             $this->conn = new \PDO($dsn, $username, $password);
-            if ($this->conn->errorInfo()){
-                die($this->conn->errorInfo());
+            if ($this->conn->errorCode() == '00000') {
+                die($this->conn->errorInfo()[2]);
             }
 
         }
@@ -33,6 +34,7 @@ class Pdo implements IDatabase
             die("no connect");
         }
         $result = $this->conn->query($sql);
+
         return $result;
     }
 
@@ -40,9 +42,9 @@ class Pdo implements IDatabase
         if(empty($this->conn)){
             die("no connect");
         }
-        $result = $this->conn->query($sql);
+        $result = $this->query($sql);
         $result->setFetchMode(\PDO::FETCH_ASSOC);
-        $arr = $result->fetch();
+        $arr = $result->fetchAll();
         return $arr;
 
     }

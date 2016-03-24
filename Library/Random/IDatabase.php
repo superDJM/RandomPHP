@@ -11,9 +11,12 @@ namespace Random;
 
 interface IDatabase
 {
+
     function connect($host, $username, $password, $database, $port);
 
     function query($sql);
+
+    public function getArray($sql);
 
     function close();
 }

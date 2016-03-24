@@ -15,6 +15,7 @@ class Database
 
     private function __construct()
     {
+
         return false;
     }
 
@@ -40,8 +41,9 @@ class Database
     {
         $config = Register::get('config');
         $db_info = $config['database'];
-        $class = ucwords($db_info['type']);
+        $class = 'Random\\Db\\' . ucwords($db_info['type']);
 
-        return new $class($db_info['host'], $db_info['username'], $db_info['password'], $db_info['database'], $db_info['port']);
+        $database = new $class($db_info['host'], $db_info['username'], $db_info['password'], $db_info['database'], $db_info['port']);
+        return $database;
     }
 }

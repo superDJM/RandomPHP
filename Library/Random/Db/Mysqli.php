@@ -11,12 +11,10 @@ namespace Random\Db;
 
 use Random\IDatabase;
 
-class Mysqli implements IDatabase
+class Mysqli extends Db implements IDatabase
 {
-
+    /** @var  $conn \mysqli */
     protected $conn;
-
-    protected $data = array();
 
     function connect($host, $username, $password, $database, $port=3306)
     {
