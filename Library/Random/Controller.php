@@ -53,7 +53,7 @@ class Controller
         extract($this->data);
 
         //编译后的tpl
-        $comFileName = BASE_ROOT . '/Temp/Tpl/com_' . $file;
+        $comFileName = BASE_ROOT . '/Temp/Tpl/com_' . strtolower($this->method) . '.php';
 
         //在debug模式下存在模版文件则进行编译
         if (file_exists($path)) {
@@ -69,7 +69,7 @@ class Controller
                 //模版的替换
                 preg_replace_callback($pattern, function ($match) use (&$repContent) {
                     $this->data[$match[1]] = empty($this->data[$match[1]]) ? '' : $this->data[$match[1]];
-                    $repContent = str_replace($match[0], "<?php echo isset(\$this->data['$match[1]'])?\$this->data['$match[1]']:''; ?>", $repContent);
+                    $repContent = str_replace($match[0], "<?php echo \$this->data['$match[1]']; ?>", $repContent);
                 }, $content);
                 file_put_contents($comFileName, $repContent);
             }
@@ -78,5 +78,9 @@ class Controller
         }
 
         include $comFileName;
+
+        $content = ob_get_clean();
+        return $content;
     }
+
 }
