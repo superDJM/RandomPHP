@@ -28,35 +28,12 @@ class Pdo extends Db implements IDatabase
         return $this->conn;
     }
 
-    function query($sql)
-    {
-        if(empty($this->conn)){
-            die("no connect");
-        }
-        $result = $this->conn->query($sql);
-
-        return $result;
-    }
-
     public function getArray($sql){
-        if(empty($this->conn)){
-            die("no connect");
-        }
+
         $result = $this->query($sql);
         $result->setFetchMode(\PDO::FETCH_ASSOC);
         $arr = $result->fetchAll();
         return $arr;
 
     }
-
-    function close()
-    {
-        unset($this->conn);
-    }
-
-    function __destruct()
-    {
-        $this->close();
-    }
-
 }

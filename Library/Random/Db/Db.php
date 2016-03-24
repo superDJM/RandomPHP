@@ -26,6 +26,24 @@ class Db
         $this->password = $password;
         $this->database = $database;
         $this->port = $port;
-        $this->conn = $this->connect($host, $username, $password, $database, $port);
+    }
+
+    function query($sql)
+    {
+        if (empty($this->conn)) {
+            $this->conn = $this->connect($this->host, $this->username, $this->password, $this->database, $this->port);
+        }
+        $result = $this->conn->query($sql);
+        return $result;
+    }
+
+    function close()
+    {
+        $this->conn = null;
+    }
+
+    function __destruct()
+    {
+        $this->close();
     }
 }
