@@ -19,8 +19,8 @@ class Router
     {
         $param = Array();
         //        $uri = $_SERVER['SCRIPT_NAME'];
-        $uri = $_SERVER['PATH_INFO'];   //使用path_info模式
-        if (empty($uri)) {
+        $uri = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '';   //使用path_info模式
+        if (!isset($_SERVER['PATH_INFO']) && !DEBUG) {
             throw new \Exception("系统不支持path_info");
         }
 
@@ -40,7 +40,7 @@ class Router
         //不规范的url,统一定位到Home/Home/index
         if (count($request) < 3) {
             return array('Home', 'Home', 'index');
-        }elseif(count($request) > 3){
+        } elseif (count($request) > 3) {
             //get Param
             preg_replace_callback('/([^\/]+)\/([^\/]+)/', function ($match) use (&$param) {
                 $param[strtolower($match[1])] = strip_tags($match[2]);
@@ -49,9 +49,6 @@ class Router
             //把param加入到$_GET
             $_GET = array_merge($param, $_GET);
         }
-
-
-
 
         //get Module
         $router[] = ucwords(array_shift($request));
