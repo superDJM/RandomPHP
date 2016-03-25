@@ -27,7 +27,11 @@ class Mysqli extends Db implements IDatabase
         return $this->conn;
     }
 
-
+    public function getRow($sql){
+        $result = $this->query($sql);
+        $arr = $result->fetch(MYSQL_ASSOC);
+        return $arr;
+    }
 
     public function getArray($sql){
 

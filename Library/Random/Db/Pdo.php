@@ -28,6 +28,13 @@ class Pdo extends Db implements IDatabase
         return $this->conn;
     }
 
+    public function getRow($sql){
+        $result = $this->query($sql);
+        $result->setFetchMode(\PDO::FETCH_ASSOC);
+        $arr = $result->fetch();
+        return $arr;
+    }
+
     public function getArray($sql){
 
         $result = $this->query($sql);
