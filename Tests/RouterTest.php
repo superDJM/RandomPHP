@@ -12,6 +12,11 @@ use Random\Router;
  */
 class RouterTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @throws \Exception
+     * @author DJM <op87960@gmail.com>
+     * @todo test
+     */
     function testParseUrl()
     {
         $_SERVER['PATH_INFO'] = '/home/home/index';
