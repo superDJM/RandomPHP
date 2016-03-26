@@ -2,39 +2,52 @@
 /**
  * Created by PhpStorm.
  * User: qiming.c
- * Date: 2016/3/25
+ * Date: 2016/3/26
  * Time: 21:28
  */
 /*
- * use:
- *
+ * Example:
  * $sql = new SqlBuilder('user');
  * $sql->where("id=1")->limit(2,4)->order("id DESC")->select("id")->buildsql();
- * $sql->where("name='小铭'")->limit(4)->order("id DESC")->select("id, name, age")->buildsql();
- * $sql->where("name='A'")->select("*")->buildsql();
  * $sql->update(array('name'=>'A', 'age'=>15))->where("id=1")->buildsql();
  * $sql->add(array('id' => 1, 'name'=>'H', 'age'=>15))->buildsql();
+ * $sql->delete()->where('id=1')->buildsql();
  */
 namespace Random;
 
 
 class SqlBuilder
 {
-    private $_where  = '';
-    private $_order  = '';
-    private $_limit  = '';
-    private $_select = '';
-    private $_insert = '';
-    private $_update = '';
-    private $_table  = '';
-    private $_pk     = '';
+    protected $_where  = '';
+    protected $_order  = '';
+    protected $_limit  = '';
+    protected $_select = '';
+    protected $_insert = '';
+    protected $_update = '';
+    protected $_table  = '';
+    protected $_group  = '';
+    protected $_delete = '';
 
     public function __construct($table){
         $this->_table = $table;
     }
 
-    public function where($where="1=1"){
-        $this->_where = " WHERE ".$where;
+    /**
+     *
+     * @access public
+     * @author qiming.c
+     * @param  String $where
+     * @param  Array $vals
+     * @return $this
+     * @example  where("name='A'") Or where("name=%s", array('A'))
+     */
+    public function where($where="1=1",$vals=null){
+        if ($vals==null && is_string($where)){
+            $this->_where = " WHERE ".$where;
+        } elseif (is_string($where) && is_array($vals)){
+            $vals = array_map(array($this, "numorstr"), $vals);
+            $this->_where = " WHERE ".vsprintf($where,$vals);
+        }
         return $this;
     }
 
@@ -59,11 +72,13 @@ class SqlBuilder
 
     public function buildsql(){
         if ($this->_select){
-            $sql =  $this->_select.$this->_where.$this->_order.$this->_limit;
+            $sql =  $this->_select.$this->_where.$this->_group.$this->_order.$this->_limit;
         } elseif($this->_update) {
             $sql =  $this->_update.$this->_where;
         } elseif($this->_insert){
             $sql = $this->_insert;
+        } elseif ($this->_delete){
+            $sql = $this->_delete.$this->_where;
         }
         $this->resetargs();
         return $sql;
@@ -93,6 +108,16 @@ class SqlBuilder
         return $this;
     }
 
+    public function group($group){
+        $this->_group = " GROUP BY ".$group;
+        return $this;
+    }
+
+    public function delete(){
+        $this->_delete = "DELETE "." FROM ".$this->_table;
+        return $this;
+    }
+
 
     public function resetargs(){
         $this->_where  = '';
@@ -101,18 +126,20 @@ class SqlBuilder
         $this->_select = '';
         $this->_update = '';
         $this->_insert = '';
+        $this->_group  = '';
+        $this->_delete = '';
     }
 
-    public function fields(){
-        $database = Factory::getDatabase();
-        $database->query("show  COLUMNS FROM $this->_table");
-    }
-
-    public function getPrimaryKey(){
-        return $this->_pk;
-    }
-
-    // 若是str 则加上''
+//     public function fields(){
+//         $database = Factory::getDatabase();
+//         return $database->getArray("show  COLUMNS FROM $this->_table");
+//     }
+//
+//    public function getPrimaryKey(){
+//        return $this->_pk;
+//    }
+//
+//     若是str 则加上''
     public function numorstr($val){
         if (is_numeric($val)){
             return $val;
