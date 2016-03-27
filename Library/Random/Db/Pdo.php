@@ -18,6 +18,18 @@ class Pdo extends Db implements IDatabase
     function connect($host, $username, $password, $database, $port=3306)
     {
         if (!isset($this->conn)) {
+            if($host == null){
+                $host = $this->host;
+            }
+            if($username == null){
+                $username = $this->username;
+            }
+            if($password == null){
+                $password = $this->password;
+            }
+            if($database == null){
+                $database = $this->database;
+            }
             $dsn = "mysql:host=$host;dbname=$database";
             $this->conn = new \PDO($dsn, $username, $password);
             if ($this->conn->errorCode() == '00000') {

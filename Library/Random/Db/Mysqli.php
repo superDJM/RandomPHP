@@ -19,6 +19,18 @@ class Mysqli extends Db implements IDatabase
     function connect($host, $username, $password, $database, $port=3306)
     {
         if (!isset($this->conn)) {
+            if($host == null){
+                $host = $this->host;
+            }
+            if($username == null){
+                $username = $this->username;
+            }
+            if($password == null){
+                $password = $this->password;
+            }
+            if($database == null){
+                $database = $this->database;
+            }
             $this->conn = new \mysqli($host, $username, $password, $database, $port);
             if (!empty($this->conn->error)) {
                 die($this->conn->error);
@@ -29,7 +41,7 @@ class Mysqli extends Db implements IDatabase
 
     public function getRow($sql){
         $result = $this->query($sql);
-        $arr = $result->fetch(MYSQL_ASSOC);
+        $arr = $result->fetch_assoc();
         return $arr;
     }
 

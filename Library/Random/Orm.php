@@ -18,10 +18,14 @@ class Orm
     public static function findOne($map){
         $sql_bulid = new Sql();
         //数据库字段必须是全部小写，表名也要小写
-        $sql = $sql_bulid->from(strtolower(__CLASS__))->where($map)->limit(1)->sqlbulid();
+        $class = get_called_class();  //拿到模型名
+        $a = explode('\\',$class);
+        $table = $a[2];
+        $sql = $sql_bulid->from(strtolower($table))->where($map)->limit(1)->sqlbulid();
+//        $sql = "select * from accounts limit 1";
+//        var_dump(get_called_class());
         $database = Factory::getDatabase();
         $arr = $database->getRow($sql);
-        $class = __CLASS__;
         $obj = new $class();
         $obj->data = $arr;
         return $obj;
@@ -30,11 +34,14 @@ class Orm
     public static function findAll($map){
         $sql_build = new Sql();
         //数据库字段必须是全部小写，表名也要小写
-        $sql = $sql_build->from(strtolower(__CLASS__))->where($map)->sqlbuild();
+        $class = get_called_class();  //拿到模型名
+        $a = explode('\\',$class);
+        $table = $a[2];
+        $sql = $sql_build->from(strtolower($table))->where($map)->sqlbuild();
+//        $sql = "select * from accounts limit 1";
         $database = Factory::getDatabase();
         $arr = $database->getArray($sql);
         $obj_array = array();
-        $class = __CLASS__;
         foreach($arr as $key=>$value){
             $obj_array[$key] = new $class();
             $obj_array[$key]->data = $value;
@@ -60,18 +67,15 @@ class Orm
         }
     }
 
-    function __callStatic($function, $arguments)
+    public static function __callStatic($function, $arguments)
     {
         // TODO: Implement __callStatic() method.
         $name = substr($function,7);
         //数据库字段必须是全部小写，表名也要小写
-        if(isset($this->data[strtolower($name)])){
-            $map[strtolower($name)] = $arguments[0];
-            $class = __CLASS__;
-            return $class::findAll($map);
-        }else{
-            return null;
-        }
+        $map[strtolower($name)] = $arguments[0];
+        $class = get_called_class();
+        return $class::findAll($map);
+
     }
 
 

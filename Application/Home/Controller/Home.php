@@ -8,6 +8,7 @@
 
 namespace Home\Controller;
 
+use Home\Model\Accounts;
 use Random\Controller;
 use Random\Db\Pdo;
 use Random\Factory;
@@ -44,15 +45,17 @@ class Home extends Controller
 
     function test()
     {
-        $database = Factory::getDatabase();
-        var_dump($database->getArray('select * from user'));
+        $map['name'] = 'linkaibin';
+        $db_obj = Accounts::Findbyname($map);
+        var_dump($db_obj[0]->account);
+
     }
 
-    public function test(){
-        $db = new Pdo();
-        $db->connect('localhost','root','admin123','mysql');
-        $sql = "select User,Password from user";
-        $arr = $db->getArray($sql);
-        var_dump($arr);
-    }
+//    function test()
+//    {
+////        $database = Factory::getDatabase();
+////        var_dump($database->getArray('select * from user'));
+//        $db = new Pdo('localhost','root','admin123','mysql');
+//        var_dump($db->getArray('select User,Password from user'));
+//    }
 }
