@@ -164,7 +164,7 @@ class SqlBuilder
 //
 
     public function check($val){
-        @mysql_real_escape_string($val);
+        $val = @mysql_real_escape_string($val);
         if (is_numeric($val)){
             return $val;
         } else {
