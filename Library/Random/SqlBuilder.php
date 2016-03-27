@@ -8,10 +8,10 @@
 /*
  * Example:
  * $sql = new SqlBuilder('user');
- * $sql->where("id=1")->limit(2,4)->order("id DESC")->select("id")->buildsql();
- * $sql->update(array('name'=>'A', 'age'=>15))->where("id=1")->buildsql();
- * $sql->add(array('id' => 1, 'name'=>'H', 'age'=>15))->buildsql();
- * $sql->delete()->where('id=1')->buildsql();
+ * $sql->where("id=1")->limit(2,4)->order("id DESC")->select("id")->buildSql();
+ * $sql->update(array('name'=>'A' AND 'age'=>15))->where("id=1")->buildSql();
+ * $sql->add(array('id' => 1, 'name'=>'H', 'age'=>15))->buildSql();
+ * $sql->delete()->where('id=1')->buildSql();
  */
 namespace Random;
 
@@ -29,13 +29,12 @@ class SqlBuilder
     protected $_delete = '';
 
     public function __construct($table){
-        $this->_table = $table;
+        $this->_table = "`".$table."`";
     }
 
     /**
      *
      * @access public
-     * @author qiming.c
      * @param  String $where
      * @param  Array $vals
      * @return $this
@@ -45,7 +44,7 @@ class SqlBuilder
         if ($vals==null && is_string($where)){
             $this->_where = " WHERE ".$where;
         } elseif (is_string($where) && is_array($vals)){
-            $vals = array_map(array($this, "numorstr"), $vals);
+            $vals = array_map(array($this, "check"), $vals);
             $this->_where = " WHERE ".vsprintf($where,$vals);
         }
         return $this;
@@ -56,11 +55,11 @@ class SqlBuilder
         return $this;
     }
 
-    public function limit($limit1="20", $limit2=""){
-        if ($limit2) {
-            $this->_limit = " LIMIT ".$limit1.", ".$limit2;
+    public function limit($offset="20", $length=null){
+        if ($length) {
+            $this->_limit = " LIMIT ".$offset.", ".$length;
         } else {
-            $this->_limit = " LIMIT 0, ".$limit1;
+            $this->_limit = " LIMIT 0, ".$offset;
         }
         return $this;
     }
@@ -70,7 +69,12 @@ class SqlBuilder
         return $this;
     }
 
-    public function buildsql(){
+    /**
+     * @access public
+     * @return sql语句
+     * @todo 构建sql语句
+     */
+    public function buildSql(){
         if ($this->_select){
             $sql =  $this->_select.$this->_where.$this->_group.$this->_order.$this->_limit;
         } elseif($this->_update) {
@@ -84,13 +88,20 @@ class SqlBuilder
         return $sql;
     }
 
+    /**
+     *
+     * @access public
+     * @param  Array $value
+     * @example  add(array('id' => 1, 'name'=>'H', 'age'=>15))
+     * @return $this
+     */
     public function add($value=array()){
         $this->_insert = "INSERT INTO $this->_table";
         $keys = '';
         $vals = '';
         foreach ($value as $key => $val) {
             $keys .= $key.",";
-            $vals .= $this->numorstr($val).",";
+            $vals .= $this->check($val).",";
         }
         $keys = rtrim($keys, ',');
         $vals = rtrim($vals, ',');
@@ -98,11 +109,17 @@ class SqlBuilder
         return $this;
     }
 
-
+    /**
+     *
+     * @access public
+     * @param  Array $value
+     * @example  update(array('name'=>'A', 'age'=>15))
+     * @return $this
+     */
     public function update($value = array()){
         $this->_update = "UPDATE $this->_table set ";
         foreach ($value as $key => $val) {
-            $this->_update .= " $key=".$this->numorstr($val).",";
+            $this->_update .= " $key=".$this->check($val).",";
         }
         $this->_update = rtrim($this->_update, ',');
         return $this;
@@ -113,6 +130,12 @@ class SqlBuilder
         return $this;
     }
 
+    /**
+     *
+     * @access public
+     * @example  delete()->where('id=1')
+     * @return $this
+     */
     public function delete(){
         $this->_delete = "DELETE "." FROM ".$this->_table;
         return $this;
@@ -139,8 +162,9 @@ class SqlBuilder
 //        return $this->_pk;
 //    }
 //
-//     若是str 则加上''
-    public function numorstr($val){
+
+    public function check($val){
+        @mysql_real_escape_string($val);
         if (is_numeric($val)){
             return $val;
         } else {
