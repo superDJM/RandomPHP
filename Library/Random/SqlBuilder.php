@@ -2,7 +2,7 @@
 /**
  * Created by PhpStorm.
  * User: qiming.c
- * Date: 2016/3/26
+ * Date: 2016/3/27
  * Time: 21:28
  */
 /*
@@ -81,8 +81,18 @@ class SqlBuilder
         return $this;
     }
 
+    /**
+     * @param  String Or Array
+     * @example  select(array('id', 'name', 'age') Or select("id, name, age")
+     * @return $this
+     */
     public function select($select="*"){
-        $this->_select = "SELECT ".$select." FROM ".$this->_table;
+        if (is_array($select)){
+            $select = array_map(function($se){return '`'.$se.'` ';}, $select);
+            $this->_select = "SELECT ".implode($select)." FROM ".$this->_table;
+        } else {
+            $this->_select = "SELECT ".$select." FROM ".$this->_table;
+        }
         return $this;
     }
 
@@ -117,7 +127,7 @@ class SqlBuilder
         $keys = '';
         $vals = '';
         foreach ($value as $key => $val) {
-            $keys .= $key.",";
+            $keys .= "`".$key."`,";
             $vals .= $this->checkValue($key, $val).",";
         }
         $keys = rtrim($keys, ',');
@@ -136,14 +146,14 @@ class SqlBuilder
     public function update($value = array()){
         $this->_update = "UPDATE $this->_table set ";
         foreach ($value as $key => $val) {
-            $this->_update .= " $key=".$this->checkValue($key, $val).",";
+            $this->_update .= " `$key`=".$this->checkValue($key, $val).",";
         }
         $this->_update = rtrim($this->_update, ',');
         return $this;
     }
 
     public function group($group){
-        $this->_group = " GROUP BY ".$group;
+        $this->_group = " GROUP BY `".$group."`";
         return $this;
     }
 
@@ -170,10 +180,16 @@ class SqlBuilder
         $this->_delete = '';
     }
 
+    /**
+     * @return Array(字段名=>类型)
+     */
     public function getFields(){
         return $this->_fields;
     }
 
+    /**
+     * @return 主键的字段名
+     */
     public function getPrimaryKey(){
         return $this->_fields['_pk'];
     }
@@ -187,6 +203,10 @@ class SqlBuilder
         if ((substr($field, 0, 3) == 'int') && (!is_numeric($val))) {
             $val = (int)($val);
         }
+        return $this->check($val);
+    }
+
+    public function check($val){
         $val = @mysql_real_escape_string($val);
         if (is_numeric($val)){
             return $val;
