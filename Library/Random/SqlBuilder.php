@@ -8,10 +8,12 @@
 /*
  * Example:
  * $sql = new SqlBuilder('user');
- * $sql->where("id=1")->limit(2,4)->order("id DESC")->select("id")->buildSql();
+ * $sql->where(array('id'=>1, 'name'=>'A'))->select()->buildSql();
  * $sql->update(array('name'=>'A' AND 'age'=>15))->where("id=1")->buildSql();
  * $sql->add(array('id' => 1, 'name'=>'H', 'age'=>15))->buildSql();
  * $sql->delete()->where('id=1')->buildSql();
+ * $sql->getFieids();
+ * $sql->getPrimaryKey();
  */
 namespace Random;
 
@@ -27,9 +29,18 @@ class SqlBuilder
     protected $_table  = '';
     protected $_group  = '';
     protected $_delete = '';
+    protected $_fields = array();
 
     public function __construct($table){
         $this->_table = "`".$table."`";
+        $_handle = Random\Factory::getDatabase();
+        $data = $_handle->getArray("show  COLUMNS FROM user");
+        foreach ($data as $arr) {
+            $this->_fields[$arr['Field']]=$arr['Type'];
+            if ($arr['Key']){
+                $this->_fields['_pk'] = $arr['Field'];
+            }
+        }
     }
 
     /**
@@ -38,7 +49,7 @@ class SqlBuilder
      * @param  String $where
      * @param  Array $vals
      * @return $this
-     * @example  where("name='A'") Or where("name=%s", array('A'))
+     * @example  where("name='A'") Or where("name=%s", array('A')) Or where(array('id'=>'1', 'name'=>'A'))
      */
     public function where($where="1=1",$vals=null){
         if ($vals==null && is_string($where)){
@@ -46,6 +57,12 @@ class SqlBuilder
         } elseif (is_string($where) && is_array($vals)){
             $vals = array_map(array($this, "check"), $vals);
             $this->_where = " WHERE ".vsprintf($where,$vals);
+        }elseif (is_array($where)){
+            $this->_where = " WHERE ";
+            foreach ($where as $key => $value) {
+                $this->_where .= " `$key` = ".$this->checkValue($key, $value)." AND";
+            }
+            $this->_where = substr($this->_where,0,strlen($this->_where)-3);
         }
         return $this;
     }
@@ -101,7 +118,7 @@ class SqlBuilder
         $vals = '';
         foreach ($value as $key => $val) {
             $keys .= $key.",";
-            $vals .= $this->check($val).",";
+            $vals .= $this->checkValue($key, $val).",";
         }
         $keys = rtrim($keys, ',');
         $vals = rtrim($vals, ',');
@@ -119,7 +136,7 @@ class SqlBuilder
     public function update($value = array()){
         $this->_update = "UPDATE $this->_table set ";
         foreach ($value as $key => $val) {
-            $this->_update .= " $key=".$this->check($val).",";
+            $this->_update .= " $key=".$this->checkValue($key, $val).",";
         }
         $this->_update = rtrim($this->_update, ',');
         return $this;
@@ -153,17 +170,23 @@ class SqlBuilder
         $this->_delete = '';
     }
 
-//     public function fields(){
-//         $database = Factory::getDatabase();
-//         return $database->getArray("show  COLUMNS FROM $this->_table");
-//     }
-//
-//    public function getPrimaryKey(){
-//        return $this->_pk;
-//    }
-//
+    public function getFields(){
+        return $this->_fields;
+    }
 
-    public function check($val){
+    public function getPrimaryKey(){
+        return $this->_fields['_pk'];
+    }
+
+    public function __destruct(){
+
+    }
+
+    public function checkValue($key, $val){
+        $field = $this->_fields[$key];
+        if ((substr($field, 0, 3) == 'int') && (!is_numeric($val))) {
+            $val = (int)($val);
+        }
         $val = @mysql_real_escape_string($val);
         if (is_numeric($val)){
             return $val;
