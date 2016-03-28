@@ -128,7 +128,7 @@ class Core
 
         //注册Request对象
         Register::set('request', $request);
-
+        
         //钩子
         Hook::listen('APP_START');
 
