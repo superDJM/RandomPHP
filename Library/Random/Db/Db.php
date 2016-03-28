@@ -12,7 +12,7 @@ use Random\IDatabase;
 
 class Db implements IDatabase
 {
-    protected $conn;
+    public $conn;
 
     protected $host;
     protected $username;

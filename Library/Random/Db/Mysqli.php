@@ -25,7 +25,7 @@ class Mysqli extends Db implements IDatabase
     {
         if (!isset($this->conn)) {
             $this->conn = new \mysqli($host, $username, $password, $database, $port);
-            if (!empty($this->conn->error)) {
+            if ($this->conn->errno) {
                 die($this->conn->error);
             }
         }
