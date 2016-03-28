@@ -39,6 +39,7 @@ class Controller
     /**
      * @param string $file
      * @author DJM <op87960@gmail.com>
+     * @return string
      * @todo 模版输入
      */
     function display($file = '')

@@ -34,18 +34,13 @@ class Core
         return self::$instance;
     }
 
-    function init()
+    function init($classLoader)
     {
         //防止预先输出
         ob_start();
 
         //开启session
         session_start();
-
-        require __DIR__ . '/Autoload.php';
-        $classLoader = new Autoload();
-        $classLoader->register();
-        $classLoader->addNamespace('Random\\', __DIR__);
 
         //注册异常处理
         Exception::Register();

@@ -16,13 +16,14 @@ define('APP_ROOT', BASE_ROOT . '/Application');
 //定义调试模式
 define('DEBUG', true);
 
-//我是一个入口文件,在这里载入核心类
-require BASE_ROOT . '/Library/Random/Core.php';
+//我是一个入口文件,在这里载入自动载入类
+$classLoader = require BASE_ROOT . '/Library/Random/InitAutoLoad.php';
 
+//得到核心类
 $core = Random\Core::getInstance();
 
 //执行
-$response = $core->init()->dispatch();
+$response = $core->init($classLoader)->dispatch();
 
 //输出到浏览器
 $response->send();
