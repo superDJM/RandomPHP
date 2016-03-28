@@ -121,16 +121,19 @@ class Core
         $modulePath = dirname(dirname(Register::get('autoload')->loadClass($controllerNameSpace)));
 
         //载入配置
-        $config = Factory::getConfig($modulePath);
+        Factory::getConfig($modulePath);
 
         //载入Request
         $request = Factory::getRequest();
+
+        //注册Request对象
+        Register::set('request', $request);
 
         //钩子
         Hook::listen('APP_START');
 
         //执行目标方法
-        $response = call_user_func(array($class, $method), $config, $request);
+        $response = call_user_func(array($class, $method), $request);
 
         //如果实例方法没有返回Response对象,则new一个空对象,防止send方法调用失败
         if (!($response instanceof Response)) {
