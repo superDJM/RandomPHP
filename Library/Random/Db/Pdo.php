@@ -15,6 +15,11 @@ class Pdo extends Db implements IDatabase
     /** @var $conn \PDO */
     protected $conn;
 
+    function __construct(){
+        parent::__construct();
+        $this->conn = $this->connect($this->host, $this->username, $this->password, $this->database, $this->port);
+    }
+
     function connect($host, $username, $password, $database, $port=3306)
     {
         if (!isset($this->conn)) {
@@ -26,6 +31,13 @@ class Pdo extends Db implements IDatabase
 
         }
         return $this->conn;
+    }
+
+    public function getRow($sql){
+        $result = $this->query($sql);
+        $result->setFetchMode(\PDO::FETCH_ASSOC);
+        $arr = $result->fetch();
+        return $arr;
     }
 
     public function getArray($sql){

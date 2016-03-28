@@ -9,6 +9,14 @@
 $config = Array(
     'router' => Array(
         'Home\\' => 'djm'
+    ),
+    'database'=>Array(
+        'type'=>'mysqli',
+        'host'=>'localhost',
+        'username'=>'root',
+        'password'=>'admin123',
+        'database'=>'test',
+        'port'=>'3306'
     )
 );
 

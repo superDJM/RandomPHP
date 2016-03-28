@@ -8,8 +8,9 @@
 
 namespace Random\Db;
 
+use Random\IDatabase;
 
-class Db
+class Db implements IDatabase
 {
     protected $conn;
 
@@ -27,6 +28,22 @@ class Db
         $this->database = $database;
         $this->port = $port;
     }
+
+    function connect($host, $username, $password, $database, $port)
+    {
+        // TODO: Implement connect() method.
+    }
+
+    public function getArray($sql)
+    {
+        // TODO: Implement getArray() method.
+    }
+
+    public function getRow($sql)
+    {
+        // TODO: Implement getRow() method.
+    }
+
 
     function query($sql)
     {
