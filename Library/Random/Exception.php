@@ -29,6 +29,6 @@ class Exception extends \Exception
 
     static function exception_error_handle($errno, $errmsg, $filename, $linenum, $vars)
     {
-        die($errmsg);
+        die("filename:{$filename} in line {$linenum}<br/>".$errmsg."<br/>");
     }
 }

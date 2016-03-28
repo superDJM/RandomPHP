@@ -34,7 +34,7 @@ class SqlBuilder
     public function __construct($table){
         $this->_table = "`".$table."`";
         $this->_handle = Factory::getDatabase();
-        $data = $this->_handle->getArray("show  COLUMNS FROM user");
+        $data = $this->_handle->getArray("show  COLUMNS FROM ".$table);
         foreach ($data as $arr) {
             $this->_fields[$arr['Field']]=$arr['Type'];
             if ($arr['Key']){

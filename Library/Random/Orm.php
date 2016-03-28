@@ -20,9 +20,9 @@ class Orm
         //数据库字段必须是全部小写，表名也要小写
         $class = get_called_class();  //拿到模型名
         $a = explode('\\',$class);
-        $table = $a[2];
+        $table = $a[count($a)-1];
         $sql_build = new SqlBuilder(strtolower($table));
-        $sql = $sql_build->where($map)->limit(1)->buildSql();
+        $sql = $sql_build->where($map)->limit(1)->select()->buildSql();
 //        $sql = "select * from accounts limit 1";
 //        var_dump(get_called_class());
         $database = Factory::getDatabase();
@@ -36,9 +36,9 @@ class Orm
         //数据库字段必须是全部小写，表名也要小写
         $class = get_called_class();  //拿到模型名
         $a = explode('\\',$class);
-        $table = $a[2];
-        $sql_bulid = new SqlBuilder(strtolower($table));
-        $sql = $sql_bulid->where($map)->buildSql();
+        $table = $a[count($a)-1];
+        $sql_build = new SqlBuilder(strtolower($table));
+        $sql = $sql_build->where($map)->select()->buildSql();
 //        $sql = "select * from accounts limit 1";
         $database = Factory::getDatabase();
         $arr = $database->getArray($sql);
