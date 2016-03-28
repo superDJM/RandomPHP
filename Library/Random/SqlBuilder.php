@@ -2,18 +2,17 @@
 /**
  * Created by PhpStorm.
  * User: qiming.c
- * Date: 2016/3/27
+ * Date: 2016/3/28
  * Time: 21:28
  */
 /*
  * Example:
- * $sql = new SqlBuilder('user');
- * $sql->where(array('id'=>1, 'name'=>'A'))->select()->buildSql();
- * $sql->update(array('name'=>'A' AND 'age'=>15))->where("id=1")->buildSql();
- * $sql->add(array('id' => 1, 'name'=>'H', 'age'=>15))->buildSql();
- * $sql->delete()->where('id=1')->buildSql();
- * $sql->getFieids();
- * $sql->getPrimaryKey();
+ *    $sql->select(array('id', 'name', 'age'))->buildSql();
+ *    $sql->where("id=%d AND name=%s", array(1, 'A'))->select()->buildSql();
+ *    $sql->where(array('id'=>1, 'name'=>'A'))->select()->buildSql();
+ *    $sql->update(array('name'=>'A', 'age'=>15))->where("id=1")->buildSql();
+ *    $sql->add(array('id' => 16, 'name'=>'H', 'age'=>15))->buildSql();
+ *    $sql->delete()->where(array('name'=>'A'))->buildSql();
  */
 namespace Random;
 use Random\Factory;
@@ -29,8 +28,8 @@ class SqlBuilder
     protected $_table  = '';
     protected $_group  = '';
     protected $_delete = '';
-    protected $_handle ;
     protected $_fields = array();
+    protected $_handle ;
 
     public function __construct($table){
         $this->_table = "`".$table."`";
@@ -45,7 +44,7 @@ class SqlBuilder
     }
 
     /**
-     * 
+     *
      * @access public
      * @param  String $where
      * @param  Array $vals
@@ -93,7 +92,7 @@ class SqlBuilder
             $this->_select = "SELECT ".implode($select)." FROM ".$this->_table;
         } else {
             $this->_select = "SELECT ".$select." FROM ".$this->_table;
-        }       
+        }
         return $this;
     }
 
@@ -103,7 +102,11 @@ class SqlBuilder
      * @todo 构建sql语句
      */
     public function buildSql(){
-        if ($this->_select){
+        $error = $this->checkSql();
+        if ($error) {
+            $this->resetargs();
+            return $error;
+        } elseif ($this->_select){
             $sql =  $this->_select.$this->_where.$this->_group.$this->_order.$this->_limit;
         } elseif($this->_update) {
             $sql =  $this->_update.$this->_where;
@@ -117,8 +120,8 @@ class SqlBuilder
     }
 
     /**
-     * 
-     * @access public 
+     *
+     * @access public
      * @param  Array $value
      * @example  add(array('id' => 1, 'name'=>'H', 'age'=>15))
      * @return $this
@@ -138,7 +141,7 @@ class SqlBuilder
     }
 
     /**
-     * 
+     *
      * @access public
      * @param  Array $value
      * @example  update(array('name'=>'A', 'age'=>15))
@@ -159,11 +162,11 @@ class SqlBuilder
     }
 
     /**
-     * 
+     *
      * @access public
      * @example  delete()->where('id=1')
      * @return $this
-     */ 
+     */
     public function delete(){
         $this->_delete = "DELETE "." FROM ".$this->_table;
         return $this;
@@ -192,17 +195,24 @@ class SqlBuilder
      * @return 主键的字段名
      */
     public function getPrimaryKey(){
-       return $this->_fields['_pk'];
-   }
-
-    public function __destruct(){
-
+        return $this->_fields['_pk'];
     }
 
+    public function __destruct(){
+        $this->_handle->close();
+    }
+
+    /**
+     * @todo 对参数进行检测和转换
+     */
     public function checkValue($key, $val){
         $field = $this->_fields[$key];
-        if ((substr($field, 0, 3) == 'int') && (!is_numeric($val))) {
+        if ((substr($field, 0, 3) == 'int') && (!is_int($val))) {
             $val = (int)($val);
+        } elseif ((substr($field, 0, 3) == 'flo') && (!is_float($val))) {
+            $val = (float)($val);
+        } elseif ((substr($field, 0, 3) == 'dou') && (!is_double($val))) {
+            $val = (double)($val);
         }
         return $this->check($val);
     }
@@ -214,6 +224,24 @@ class SqlBuilder
         } else {
             return "'$val'";
         }
+    }
+
+    public function checkSql(){
+        $error = '';
+        if ($this->_select && $this->_update){
+            $error.="Error:不能同时使用select和update ";
+        } elseif ($this->_select && $this->_insert) {
+            $error.="Error:不能同时使用select和add ";
+        } elseif ($this->_select && $this->_delete) {
+            $error.="Error:不能同时使用select和delete ";
+        } elseif ($this->_update && $this->_insert) {
+            $error.="Error:不能同时使用update和add ";
+        } elseif ($this->_delete && $this->_update) {
+            $error.="Error:不能同时使用update和delete ";
+        } elseif ($this->_insert && $this->_delete){
+            $error.="Error:不能同时使用insert和delete ";
+        }
+        return $error;
     }
 }
 
