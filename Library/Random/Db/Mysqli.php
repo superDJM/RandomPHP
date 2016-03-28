@@ -13,11 +13,9 @@ use Random\IDatabase;
 
 class Mysqli extends Db implements IDatabase
 {
-    /** @var  $conn \mysqli */
-    protected $conn;
 
-    function __construct(){
-        parent::__construct();
+    function __construct($host, $username, $password, $database, $port = 3306){
+        parent::__construct($host, $username, $password, $database, $port = 3306);
         $this->conn = $this->connect($this->host, $this->username, $this->password, $this->database, $this->port);
     }
 

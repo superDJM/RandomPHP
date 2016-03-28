@@ -32,13 +32,13 @@ class Orm
     }
 
     public static function findAll($map){
-        $sql_build = new Sql();
+//        $sql_build = new Sql();
         //数据库字段必须是全部小写，表名也要小写
         $class = get_called_class();  //拿到模型名
-        $a = explode('\\',$class);
-        $table = $a[2];
-        $sql = $sql_build->from(strtolower($table))->where($map)->sqlbuild();
-//        $sql = "select * from accounts limit 1";
+//        $a = explode('\\',$class);
+//        $table = $a[2];
+//        $sql = $sql_build->from(strtolower($table))->where($map)->sqlbuild();
+        $sql = "select * from accounts limit 1";
         $database = Factory::getDatabase();
         $arr = $database->getArray($sql);
         $obj_array = array();
