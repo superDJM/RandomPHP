@@ -12,8 +12,6 @@ use Random\IDatabase;
 
 class Pdo extends Db implements IDatabase
 {
-    /** @var $conn \PDO */
-    protected $conn;
 
     function __construct($host, $username, $password, $database, $port = 3306){
         parent::__construct($host, $username, $password, $database, $port = 3306);
