@@ -16,7 +16,7 @@
  * $sql->getPrimaryKey();
  */
 namespace Random;
-
+use Random\Factory;
 
 class SqlBuilder
 {
@@ -29,12 +29,13 @@ class SqlBuilder
     protected $_table  = '';
     protected $_group  = '';
     protected $_delete = '';
+    protected $_handle ;
     protected $_fields = array();
 
     public function __construct($table){
         $this->_table = "`".$table."`";
-        $_handle = Random\Factory::getDatabase();
-        $data = $_handle->getArray("show  COLUMNS FROM user");
+        $this->_handle = Factory::getDatabase();
+        $data = $this->_handle->getArray("show  COLUMNS FROM user");
         foreach ($data as $arr) {
             $this->_fields[$arr['Field']]=$arr['Type'];
             if ($arr['Key']){
@@ -44,7 +45,7 @@ class SqlBuilder
     }
 
     /**
-     *
+     * 
      * @access public
      * @param  String $where
      * @param  Array $vals
@@ -92,7 +93,7 @@ class SqlBuilder
             $this->_select = "SELECT ".implode($select)." FROM ".$this->_table;
         } else {
             $this->_select = "SELECT ".$select." FROM ".$this->_table;
-        }
+        }       
         return $this;
     }
 
@@ -116,8 +117,8 @@ class SqlBuilder
     }
 
     /**
-     *
-     * @access public
+     * 
+     * @access public 
      * @param  Array $value
      * @example  add(array('id' => 1, 'name'=>'H', 'age'=>15))
      * @return $this
@@ -137,7 +138,7 @@ class SqlBuilder
     }
 
     /**
-     *
+     * 
      * @access public
      * @param  Array $value
      * @example  update(array('name'=>'A', 'age'=>15))
@@ -158,11 +159,11 @@ class SqlBuilder
     }
 
     /**
-     *
+     * 
      * @access public
      * @example  delete()->where('id=1')
      * @return $this
-     */
+     */ 
     public function delete(){
         $this->_delete = "DELETE "." FROM ".$this->_table;
         return $this;
@@ -191,8 +192,8 @@ class SqlBuilder
      * @return 主键的字段名
      */
     public function getPrimaryKey(){
-        return $this->_fields['_pk'];
-    }
+       return $this->_fields['_pk'];
+   }
 
     public function __destruct(){
 
@@ -207,7 +208,7 @@ class SqlBuilder
     }
 
     public function check($val){
-        $val = @mysql_real_escape_string($val);
+        $val = mysqli_real_escape_string($this->_handle->conn, $val);
         if (is_numeric($val)){
             return $val;
         } else {
@@ -215,3 +216,4 @@ class SqlBuilder
         }
     }
 }
+
