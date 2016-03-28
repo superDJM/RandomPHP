@@ -18,5 +18,7 @@ interface IDatabase
 
     public function getArray($sql);
 
+    public function getRow($sql);
+
     function close();
 }
