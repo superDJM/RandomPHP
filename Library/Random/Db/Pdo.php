@@ -41,8 +41,13 @@ class Pdo extends Db implements IDatabase
     public function getArray($sql){
 
         $result = $this->query($sql);
-        $result->setFetchMode(\PDO::FETCH_ASSOC);
-        $arr = $result->fetchAll();
+        if($result) {
+            $result->setFetchMode(\PDO::FETCH_ASSOC);
+            $arr = $result->fetchAll();
+        }else{
+            $arr = null;
+        }
+
         return $arr;
 
     }

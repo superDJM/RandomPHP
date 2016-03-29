@@ -21,6 +21,12 @@ $config = array(
         'password' => '',
         'database' => 'randomphp',
         'port' => 3306,
+    ),
+    'session' => array(
+        'suffix' => 'randomphp'
+    ),
+    'cookies' => array(
+        'suffix' => 'randomphp'
     )
 );
 

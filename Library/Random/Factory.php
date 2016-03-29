@@ -42,11 +42,8 @@ class Factory
      */
     static function getRequest()
     {
-        if (empty(Register::get('request'))) {
-            $request = Request::getInstance();
-            Register::set('request', $request);
-        }
-        return Register::get('request');
+        $request = Request::getInstance();
+        return $request;
     }
 
     /**

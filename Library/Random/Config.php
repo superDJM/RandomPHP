@@ -78,7 +78,7 @@ class Config implements \ArrayAccess
             $this->getConfig(__DIR__, $key);
         }
 
-        return $this->configs[__DIR__][$key];
+        return isset($this->configs[__DIR__][$key]) ? $this->configs[__DIR__][$key] : '';
     }
 
     function offsetSet($key, $value)
