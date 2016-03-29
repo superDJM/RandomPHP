@@ -39,7 +39,12 @@ class Mysqli extends Db implements IDatabase
     public function getArray($sql){
 
         $result = $this->query($sql);
-        $arr = $result->fetch_all(MYSQL_ASSOC);
+        if($result) {
+            $arr = $result->fetch_all(MYSQL_ASSOC);
+        }else{
+            $arr = null;
+        }
+
         return $arr;
     }
 
