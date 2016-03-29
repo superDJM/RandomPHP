@@ -44,13 +44,18 @@ class Request
 
         unset($_REQUEST);
 
-        $this->parseServer();
+        //cli?
+        if (PHP_SAPI != 'cli') {
+            //get Server
+            $this->parseServer();
+            //get Cookies
+            $this->parseCookies();
 
-        //get Cookies
-        $this->parseCookies();
+            //get Session
+            $this->parseSession();
+        }
 
-        //get Session
-        $this->parseSession();
+
     }
 
     static function getInstance()
