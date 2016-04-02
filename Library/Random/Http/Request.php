@@ -128,7 +128,7 @@ class Request
                     break;
                 }
             case 'post':
-                $result = isset($this->_post[$name]) ? $this->_post[$name] : '';
+                $result = isset($this->_post[$name]) ? $this->_post[$name] : (isset($result) ? $result : '');
                 break;
             default :
                 throw new Exception("method get($name,$method) is not supported");

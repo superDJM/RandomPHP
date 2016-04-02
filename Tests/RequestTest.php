@@ -17,7 +17,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     function testGetAndPost()
     {
         $_POST['a'] = 'postA';
-        $_POST['b'] = 123;
+
 
         $_GET['a'] = 'getA';
         $_GET['b'] = 456;
@@ -29,10 +29,10 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
         //test post
         $this->assertEquals('postA', $request->get('a', 'post'));
-        $this->assertEquals(123, $request->get('b', 'post'));
 
         //test mixed
         $this->assertEquals('postA', $request->get('a'));
+        $this->assertEquals(456, $request->get('b'));
 
         //test null
         $this->assertEmpty($request->get('c'));
