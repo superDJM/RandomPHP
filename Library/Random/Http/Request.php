@@ -8,6 +8,7 @@
 
 namespace Random\Http;
 
+use Random\Exception;
 use Random\Register;
 
 /**
@@ -108,17 +109,41 @@ class Request
         $_SESSION = null;
     }
 
-    //get private variable
-    public function __get($name)
+    /**
+     * @param $name
+     * @param string $method
+     * @return string
+     * @throws Exception
+     * @author DJM <op87960@gmail.com>
+     * @todo 获取get或post的值
+     */
+    public function get($name, $method = 'mixed')
     {
-        $name = "_" . $name;
-        if (isset($this->$name)) {
-            return $this->$name;
-        } else {
-            return;
+        switch ($method) {
+            case 'mixed':
+            case 'get':
+                $result = isset($this->_get[$name]) ? $this->_get[$name] : '';
+                //混合模式
+                if ($method != 'mixed') {
+                    break;
+                }
+            case 'post':
+                $result = isset($this->_post[$name]) ? $this->_post[$name] : '';
+                break;
+            default :
+                throw new Exception("method get($name,$method) is not supported");
         }
+        return $result;
     }
 
+    /**
+     * @param $name
+     * @param $arguments
+     * @return string|void
+     * @throws Exception
+     * @author DJM <op87960@gmail.com>
+     * @todo 实现了session()和cookie()
+     */
     public function __call($name, $arguments)
     {
         switch ($name) {
@@ -127,10 +152,9 @@ class Request
                     return isset($this->_session[$this->session_suffix . "_" . $arguments[0]]) ? $this->_session[$this->session_suffix . "_" . $arguments[0]] : '';
                 } elseif ($count == 2) {
                     $this->_session[$this->session_suffix . "_" . $arguments[0]] = $arguments[1];
-                    return;
+                    return $arguments[1];
                 } else {
-                    trigger_error("session() takes two arguments at most , $count given");
-                    return;
+                    throw new Exception("session() takes two arguments at most , $count given");
                 }
                 break;
             case 'cookie' :
@@ -138,14 +162,13 @@ class Request
                     return isset($this->_cookies[$this->cookies_suffix . "_" . $arguments[0]]) ? $this->_cookies[$this->cookies_suffix . "_" . $arguments[0]] : '';
                 } elseif ($count == 2) {
                     $this->_cookies[$this->cookies_suffix . "_" . $arguments[0]] = $arguments[1];
-                    return;
+                    return $arguments[1];
                 } else {
-                    trigger_error("cookie() takes two arguments at most , $count given");
-                    return;
+                    throw new Exception("cookie() takes two arguments at most , $count given");
                 }
                 break;
             default :
-                trigger_error("$name is not defined");
+                throw new Exception("$name is not defined");
         }
     }
 
