@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: qiming.c
- * Date: 2016/3/28
- * Time: 21:28
+ * Date: 2016/3/29
+ * Time: 22:56
  */
 /*
  * Example:
@@ -19,6 +19,7 @@ use Random\Factory;
 
 class SqlBuilder
 {
+    protected $_error  = '';
     protected $_where  = '';
     protected $_order  = '';
     protected $_limit  = '';
@@ -28,13 +29,15 @@ class SqlBuilder
     protected $_table  = '';
     protected $_group  = '';
     protected $_delete = '';
+    protected $_count  = '';
     protected $_fields = array();
     protected $_handle ;
+
 
     public function __construct($table){
         $this->_table = "`".$table."`";
         $this->_handle = Factory::getDatabase();
-        $data = $this->_handle->getArray("show  COLUMNS FROM ".$table);
+        $data = $this->_handle->getArray("show  COLUMNS FROM ".$this->_table);
         foreach ($data as $arr) {
             $this->_fields[$arr['Field']]=$arr['Type'];
             if ($arr['Key']){
@@ -59,8 +62,9 @@ class SqlBuilder
             $this->_where = " WHERE ".vsprintf($where,$vals);
         }elseif (is_array($where)){
             $this->_where = " WHERE ";
+            $where = $this->checkArrayVal($where, __FUNCTION__);
             foreach ($where as $key => $value) {
-                $this->_where .= " `$key` = ".$this->checkValue($key, $value)." AND";
+                $this->_where .= " `$key` = ".$value." AND";
             }
             $this->_where = substr($this->_where,0,strlen($this->_where)-3);
         }
@@ -88,9 +92,18 @@ class SqlBuilder
      */
     public function select($select="*"){
         if (is_array($select)){
+            $select = $this->checkField($select);
             $select = array_map(function($se){return '`'.$se.'` ';}, $select);
+            if (empty($select)) $select=array('*');
             $this->_select = "SELECT ".implode($select)." FROM ".$this->_table;
+        } elseif ($select == '*') {
+            $this->_select = "SELECT ".$select." FROM ".$this->_table;
         } else {
+            $selectArray = explode(',', $select);
+            $selectArray = array_map('trim', $selectArray);
+            $selectArray = $this->checkField($selectArray);
+            $select = '`'.implode('`, `', $selectArray).'`';
+            if (empty($select)) $select='*';
             $this->_select = "SELECT ".$select." FROM ".$this->_table;
         }
         return $this;
@@ -102,18 +115,21 @@ class SqlBuilder
      * @todo 构建sql语句
      */
     public function buildSql(){
-        $error = $this->checkSql();
-        if ($error) {
+        $this->checkSql();
+        if ($this->_error) {
+            trigger_error($this->_error);
             $this->resetargs();
-            return $error;
+            return null;
         } elseif ($this->_select){
             $sql =  $this->_select.$this->_where.$this->_group.$this->_order.$this->_limit;
         } elseif($this->_update) {
             $sql =  $this->_update.$this->_where;
-        } elseif($this->_insert){
+        } elseif($this->_insert) {
             $sql = $this->_insert;
-        } elseif ($this->_delete){
+        } elseif ($this->_delete) {
             $sql = $this->_delete.$this->_where;
+        } elseif ($this->_count) {
+            $sql = $this->_count.$this->_where;
         }
         $this->resetargs();
         return $sql;
@@ -127,16 +143,9 @@ class SqlBuilder
      * @return $this
      */
     public function add($value=array()){
+        $value = $this->checkArrayVal($value, __FUNCTION__);
         $this->_insert = "INSERT INTO $this->_table";
-        $keys = '';
-        $vals = '';
-        foreach ($value as $key => $val) {
-            $keys .= "`".$key."`,";
-            $vals .= $this->checkValue($key, $val).",";
-        }
-        $keys = rtrim($keys, ',');
-        $vals = rtrim($vals, ',');
-        $this->_insert .= "($keys)" . " VALUES" ."($vals)";
+        $this->_insert .= " (`".implode('`, `', array_keys($value))."`) VALUES (".implode(', ', array_values($value)).")";
         return $this;
     }
 
@@ -149,8 +158,9 @@ class SqlBuilder
      */
     public function update($value = array()){
         $this->_update = "UPDATE $this->_table set ";
+        $value = $this->checkArrayVal($value, __FUNCTION__);
         foreach ($value as $key => $val) {
-            $this->_update .= " `$key`=".$this->checkValue($key, $val).",";
+            $this->_update .= " `$key`=".$val.",";
         }
         $this->_update = rtrim($this->_update, ',');
         return $this;
@@ -172,6 +182,10 @@ class SqlBuilder
         return $this;
     }
 
+    public function count($count='*'){
+        $this->_count = 'SELECT COUNT('.$count.') FROM '.$this->_table;
+    }
+
 
     public function resetargs(){
         $this->_where  = '';
@@ -182,6 +196,8 @@ class SqlBuilder
         $this->_insert = '';
         $this->_group  = '';
         $this->_delete = '';
+        $this->_error  = '';
+        $this->_count  = '';
     }
 
     /**
@@ -202,9 +218,24 @@ class SqlBuilder
         $this->_handle->close();
     }
 
-    /**
-     * @todo 对参数进行检测和转换
-     */
+    //sql语句的检测
+    public function checkSql(){
+        if ($this->_select && $this->_update){
+            $this->_error.="Error:不能同时使用select和update ";
+        } elseif ($this->_select && $this->_insert) {
+            $this->_error.="Error:不能同时使用select和add ";
+        } elseif ($this->_select && $this->_delete) {
+            $this->_error.="Error:不能同时使用select和delete ";
+        } elseif ($this->_update && $this->_insert) {
+            $this->_error.="Error:不能同时使用update和add ";
+        } elseif ($this->_delete && $this->_update) {
+            $this->_error.="Error:不能同时使用update和delete ";
+        } elseif ($this->_insert && $this->_delete){
+            $this->_error.="Error:不能同时使用insert和delete ";
+        }
+    }
+
+    //对参数进行检测和转换
     public function checkValue($key, $val){
         $field = $this->_fields[$key];
         if ((substr($field, 0, 3) == 'int') && (!is_int($val))) {
@@ -217,31 +248,48 @@ class SqlBuilder
         return $this->check($val);
     }
 
+    //对数据进行转义处理
     public function check($val){
-        $val = mysqli_real_escape_string($this->_handle->conn, $val);
-        if (is_numeric($val)){
-            return $val;
-        } else {
+        if (is_string($val)){
+            $val = mysqli_real_escape_string($this->_handle->conn, $val);
             return "'$val'";
+        } else {
+            return $val;
         }
     }
 
-    public function checkSql(){
-        $error = '';
-        if ($this->_select && $this->_update){
-            $error.="Error:不能同时使用select和update ";
-        } elseif ($this->_select && $this->_insert) {
-            $error.="Error:不能同时使用select和add ";
-        } elseif ($this->_select && $this->_delete) {
-            $error.="Error:不能同时使用select和delete ";
-        } elseif ($this->_update && $this->_insert) {
-            $error.="Error:不能同时使用update和add ";
-        } elseif ($this->_delete && $this->_update) {
-            $error.="Error:不能同时使用update和delete ";
-        } elseif ($this->_insert && $this->_delete){
-            $error.="Error:不能同时使用insert和delete ";
+    //对array参数进行检测与处理
+    public function checkArrayVal($array=array(), $fun){
+        $array = $this->checkField($array);
+        if(empty($array)){
+            $this->_error .= "Error: ".$fun."() 参数不能为空或参数错误";
         }
-        return $error;
+        $ruarray = array();
+        $ruarray = array_map(array($this, 'checkValue'), array_keys($array), array_values($array));
+        $ruarray = array_combine(array_keys($array), array_values($ruarray));
+        return $ruarray;
+    }
+
+    //检测字段是否存在
+    public function checkField($array){
+        $returnArray = array();
+        if (!($this->is_assoc($array))){
+            foreach ($array as $key => $value) {
+                if (in_array($value, array_keys($this->_fields)))
+                    $returnArray[$key] = $value;
+            }
+        } else {
+            foreach ($array as $key => $value) {
+                if (in_array($key, array_keys($this->_fields)))
+                    $returnArray[$key] = $value;
+            }
+        }
+        return $returnArray;
+    }
+
+    //判断是否关联数组
+    public function is_assoc($arr) {
+        return array_keys($arr) !== range(0, count($arr) - 1);
     }
 }
 
