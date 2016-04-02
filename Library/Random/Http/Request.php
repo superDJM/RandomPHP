@@ -43,10 +43,17 @@ class Request
         // get Get
         $this->parseGet();
 
+        //unset全局$_REQUEST变量
         unset($_REQUEST);
 
         //cli?
         if (PHP_SAPI != 'cli') {
+
+            //定义IS_GET IS_POST IS_AJAX
+            define('IS_GET', $this->isGet());
+            define('IS_POST', $this->isPost());
+            define('IS_AJAX', $this->isAjax());
+
             //get Server
             $this->parseServer();
             //get Cookies
@@ -59,6 +66,11 @@ class Request
 
     }
 
+    /**
+     * @return Request
+     * @author DJM <op87960@gmail.com>
+     * @todo 获取Request静态类
+     */
     static function getInstance()
     {
         if (empty(self::$instance)) {
@@ -67,47 +79,92 @@ class Request
         return self::$instance;
     }
 
+    /**
+     * @author DJM <op87960@gmail.com>
+     * @todo 解析$_SERVER并unset
+     */
     private function parseServer()
     {
         $this->_server = $_SERVER;
         unset($_SERVER);
     }
 
+    /**
+     * @author DJM <op87960@gmail.com>
+     * @todo 解析$_POST并unset
+     */
     private function parsePost()
     {
-        if (!empty($_POST)) {
-            define('IS_POST', true);
-            $this->_post = $_POST;
-        } else {
-            define('IS_POST', false);
-        }
+        $this->_post = $_POST;
         unset($_POST);
     }
 
+    /**
+     * @author DJM <op87960@gmail.com>
+     * @todo 解析$_GET并unset
+     */
     private function parseGet()
     {
-        if (!empty($_GET)) {
-            if (IS_POST) {
-                define('IS_GET', false);
-            } else {
-                define('IS_GET', true);
-            }
-            $this->_get = $_GET;
-        }
+        $this->_get = $_GET;
         unset($_GET);
     }
 
+    /**
+     * @author DJM <op87960@gmail.com>
+     * @todo 解析$_COOKIE并unset
+     */
     private function parseCookies()
     {
         $this->_cookies = $_COOKIE;
         unset($_COOKIE);
     }
 
+    /**
+     * @author DJM <op87960@gmail.com>
+     * @todo 解析$_SESSION并unset
+     */
     private function parseSession()
     {
         $this->_session = $_SESSION;
         $_SESSION = null;
     }
+
+    /**
+     * @return bool
+     * @author DJM <op87960@gmail.com>
+     * @todo 判断是否Ajax提交
+     */
+    public function isAjax()
+    {
+        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'
+        ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @return bool
+     * @author DJM <op87960@gmail.com>
+     * @todo 判断是否get请求
+     */
+    public function isGet()
+    {
+        return $_SERVER['REQUEST_METHOD'] == 'GET' ? true : false;
+    }
+
+    /**
+     * @return bool
+     * @author DJM <op87960@gmail.com>
+     * @todo 判断是否post提交
+     */
+    public function isPost()
+    {
+        return $_SERVER['REQUEST_METHOD'] == 'POST' ? true : false;
+    }
+
 
     /**
      * @param $name
