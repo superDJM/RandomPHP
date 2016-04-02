@@ -22,6 +22,7 @@ class Request
     private $_get = array();
     private $_post = array();
     private $_header = array();
+    private $_file = array();
     private $_session = array();
     private $_cookies = array();
     private $_server = array();
@@ -53,6 +54,7 @@ class Request
             define('IS_GET', $this->isGet());
             define('IS_POST', $this->isPost());
             define('IS_AJAX', $this->isAjax());
+            define('IS_HTTPS', $this->isHttps());
 
             //get Server
             $this->parseServer();
@@ -62,8 +64,25 @@ class Request
             //get Session
             $this->parseSession();
         }
+    }
 
-
+    /**
+     * @return string
+     * @author DJM <op87960@gmail.com>
+     * @todo 获取用户真实ip
+     */
+    public function getClientIp()
+    {
+        if (!empty($this->_server["HTTP_CLIENT_IP"])) {
+            $cip = $this->_server["HTTP_CLIENT_IP"];
+        } elseif (!empty($this->_server["HTTP_X_FORWARDED_FOR"])) {
+            $cip = $this->_server["HTTP_X_FORWARDED_FOR"];
+        } elseif (!empty($this->_server["REMOTE_ADDR"])) {
+            $cip = $this->_server["REMOTE_ADDR"];
+        } else {
+            $cip = '';
+        }
+        return $cip;
     }
 
     /**
@@ -132,6 +151,16 @@ class Request
     /**
      * @return bool
      * @author DJM <op87960@gmail.com>
+     * @todo 判断是否https
+     */
+    public function isHttps()
+    {
+        return $this->_server['REQUEST_SCHEME'] == 'https' ? true : false;
+    }
+
+    /**
+     * @return bool
+     * @author DJM <op87960@gmail.com>
      * @todo 判断是否Ajax提交
      */
     public function isAjax()
@@ -172,7 +201,7 @@ class Request
      * @return string
      * @throws Exception
      * @author DJM <op87960@gmail.com>
-     * @todo 获取get或post的值
+     * @todo 获取get或post或server的值
      */
     public function get($name, $method = 'mixed')
     {
@@ -186,6 +215,9 @@ class Request
                 }
             case 'post':
                 $result = isset($this->_post[$name]) ? $this->_post[$name] : (isset($result) ? $result : '');
+                break;
+            case 'server':
+                $result = isset($this->_server[$name]) ? $this->_server : '';
                 break;
             default :
                 throw new Exception("method get($name,$method) is not supported");
