@@ -21,20 +21,22 @@ class Core
 {
 
     protected static $instance;
+    private $_classLoader;
 
-    protected function __construct()
+    private function __construct($classLoader)
     {
+        $this->_classLoader = $classLoader;
     }
 
-    static function getInstance()
+    static function getInstance($classLoader)
     {
         if (empty(self::$instance)) {
-            self::$instance = new self();
+            self::$instance = new self($classLoader);
         }
         return self::$instance;
     }
 
-    function init($classLoader)
+    function init()
     {
         //防止预先输出
         ob_start();
@@ -54,7 +56,7 @@ class Core
         if (is_array($config['router'])) {
             //根据配置载入命名空间
             foreach ($config['router'] as $key => $value) {
-                $classLoader->addNamespace($key, BASE_ROOT . $value);
+                $this->_classLoader->addNamespace($key, BASE_ROOT . $value);
             }
         }
 
@@ -66,7 +68,7 @@ class Core
         }
 
         //注册自动载入类
-        Register::set('autoload', $classLoader);
+        Register::set('autoload', $this->_classLoader);
 
         //设置时区
         date_default_timezone_set($config['default_timezone']);

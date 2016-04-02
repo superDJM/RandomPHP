@@ -20,10 +20,10 @@ define('DEBUG', true);
 $classLoader = require BASE_ROOT . '/Library/Random/InitAutoLoad.php';
 
 //得到核心类
-$core = Random\Core::getInstance();
+$core = Random\Core::getInstance($classLoader);
 
 //执行
-$response = $core->init($classLoader)->dispatch();
+$response = $core->init()->dispatch();
 
 //输出到浏览器
 $response->send();
