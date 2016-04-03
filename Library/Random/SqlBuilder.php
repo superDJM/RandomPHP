@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: qiming.c
- * Date: 2016/3/29
- * Time: 22:56
+ * Date: 2016/4/3
+ * Time: 21:28
  */
 /*
  * Example:
@@ -93,9 +93,9 @@ class SqlBuilder
     public function select($select="*"){
         if (is_array($select)){
             $select = $this->checkField($select);
-            $select = array_map(function($se){return '`'.$se.'` ';}, $select);
+            $select = array_map(function($se){return '`'.$se.'`,';}, $select);
             if (empty($select)) $select=array('*');
-            $this->_select = "SELECT ".implode($select)." FROM ".$this->_table;
+            $this->_select = "SELECT ".rtrim(implode($select), ',')." FROM ".$this->_table;
         } elseif ($select == '*') {
             $this->_select = "SELECT ".$select." FROM ".$this->_table;
         } else {
