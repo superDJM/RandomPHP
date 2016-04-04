@@ -22,10 +22,10 @@
         -- Application      存放业务逻辑  
             -- Module       模块
                 -- Common   存放公共函数
-                -- Config   存放配置
                 -- Controller
                 -- Model
                 -- View
+                configs.php 存放配置
         -- Db               存放数据库备份文件
         -- Library          类库
         -- Web              网站目录

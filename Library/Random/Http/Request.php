@@ -155,7 +155,8 @@ class Request
      */
     public function isHttps()
     {
-        return $this->_server['REQUEST_SCHEME'] == 'https' ? true : false;
+        return isset($this->_server['REQUEST_SCHEME']) &&
+        $this->_server['REQUEST_SCHEME'] == 'https' ? true : false;
     }
 
     /**

@@ -11,11 +11,11 @@ $config = Array(
         'Home\\' => 'djm'
     ),
     'database'=>Array(
-        'type'=>'mysqli',
+        'type' => 'pdo',
         'host'=>'localhost',
         'username'=>'root',
-        'password'=>'admin123',
-        'database'=>'test',
+        'password' => '',
+        'database' => 'randomphp',
         'port'=>'3306'
     )
 );

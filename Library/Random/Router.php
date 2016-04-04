@@ -26,8 +26,8 @@ class Router
 
         //伪静态处理
         if (false !== $pos = strpos($uri, '.')) {
-            $config = Register::get('config');
-            if (substr($uri, $pos + 1) != $config['suffix']) {
+            $suffix = Config::get('suffix');
+            if (substr($uri, $pos + 1) != $suffix) {
                 throw new \Exception("suffix is not supported");
             } else {
                 $uri = substr($uri, 0, $pos);

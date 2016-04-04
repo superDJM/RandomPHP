@@ -11,77 +11,54 @@ namespace Random;
 
 class Controller
 {
-    protected $data;
     protected $module;
     protected $controller;
-    protected $template_dir;
     protected $method;
+    /** @var string 模版目录 */
+    protected $template_dir;
 
-    function __construct($module, $controller, $method)
+    /** @var  Template 视图 */
+    private $_view;
+
+    public function __construct($module, $controller, $method)
     {
         $this->module = $module;
         $this->controller = $controller;
         $this->method = $method;
-        $this->template_dir = APP_ROOT . '/' . $module . '/View/' . $controller;
+        $this->template_dir = Config::get('path.APP_ROOT') . '/' . $module . '/View/' . $controller;
     }
 
     /**
      * @param $key
      * @param $value
      * @author DJM <op87960@gmail.com>
-     * @todo 模版赋值
+     * @todo 调用template进行模版赋值
      */
-    function assign($key, $value)
+    public function assign($key, $value = NULL)
     {
-        $this->data[$key] = $value;
+        $this->getView()->assign($key, $value);
     }
 
     /**
      * @param string $file
      * @author DJM <op87960@gmail.com>
      * @return string
-     * @todo 模版输入
+     * @todo 调用template进行模版输出
      */
-    function display($file = '')
+    public function display($file = '')
     {
-        //默认输入跟方法对应的tpl
+        //如果不传入文件名,即默认输出与方法同名的模版
         if (empty($file)) {
-            $file = strtolower($this->method) . '.html';
+            $file = $this->method;
         }
-        $path = $this->template_dir . '/' . $file;
-
-        //解压变量
-        extract($this->data);
-
-        //编译后的tpl
-        $comFileName = BASE_ROOT . '/Temp/Tpl/com_' . strtolower($this->method) . '.php';
-
-        //在debug模式下存在模版文件则进行编译
-        if (file_exists($path)) {
-            if (DEBUG || !file_exists($comFileName)) {
-                $content = file_get_contents($path);
-                $pattern = array(
-                    '/{\$([a-zA-Z]*)}/i'
-                );
-                $replacement = array(
-                    '<?php echo \$${1}; ?>'
-                );
-                $repContent = $content;
-                //模版的替换
-                preg_replace_callback($pattern, function ($match) use (&$repContent) {
-                    $this->data[$match[1]] = empty($this->data[$match[1]]) ? '' : $this->data[$match[1]];
-                    $repContent = str_replace($match[0], "<?php echo \$this->data['$match[1]']; ?>", $repContent);
-                }, $content);
-                file_put_contents($comFileName, $repContent);
-            }
-        } else {
-            return;
-        }
-
-        include $comFileName;
-
-        $content = ob_get_clean();
-        return $content;
+        return $this->getView()->display($file);
     }
 
+    private function getView()
+    {
+        if (is_null($this->_view)) {
+            $this->_view = new Template($this->template_dir);
+        }
+        return $this->_view;
+    }
 }

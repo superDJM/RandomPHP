@@ -14,13 +14,19 @@ namespace Random;
  * @author DJM <op87960@gmail.com>
  * @todo 配置类
  * @example
- *      $config = new Config(__DIR__);
- *      var_dump($config['key']);
+ *      //初始化目录
+ *      Config::getInstance(__DIR__);
+ *      var_dump(Config::get('key'));
  */
-class Config implements \ArrayAccess
+class Config
 {
+
+    /** @var string 配置文件所在目录 */
     protected $path;
+    /** @var array 存放配置的数组 */
     protected $configs = array();
+    /** @var bool 标志位:配置文件是否全部加载成功 */
+    protected $finish = false;
     static $instance;
 
     function __construct($path)
@@ -28,6 +34,13 @@ class Config implements \ArrayAccess
         $this->path = $path;
     }
 
+
+    /**
+     * @param $path
+     * @return Config
+     * @author DJM <op87960@gmail.com>
+     * @todo 获取Config静态类,并设置路径
+     */
     static function getInstance($path)
     {
         if (!isset(self::$instance)) {
@@ -39,61 +52,72 @@ class Config implements \ArrayAccess
         return self::$instance;
     }
 
-    private function getConfig($path)
+    /**
+     * @param $key string 获取的key值
+     * @return string 配置
+     * @author DJM <op87960@gmail.com>
+     * @todo 根据$key获取配置(支持多级数组获取)
+     */
+    static function get($key = null)
     {
-        $file_path = $path . '/Config/Config.php';
+        $arr = explode('.', $key);
+        $count = count($arr);
+
+        $result = self::$instance->getConfig($arr[0]);
+        for ($i = 1; $i < $count; $i++) {
+            if (is_array($result)) {
+                $result = isset($result[$arr[$i]]) ? $result[$arr[$i]] : '';
+            } else {
+                $result = '';
+                break;
+            }
+
+        }
+        return $result;
+    }
+
+    /**
+     * @param $key string 要获取配置的key值
+     * @return string 配置
+     * @author DJM <op87960@gmail.com>
+     * @todo 获取配置
+     */
+    private function getConfig($key)
+    {
+        //判断是否加载完成
+        if (!$this->finish) {
+            //先加载全局配置
+            $this->initConfig(__DIR__);
+            if ($this->path != __DIR__) {
+                //加载module间配置
+                $this->initConfig(dirname($this->path));
+                //加载module配置
+                $this->initConfig($this->path);
+                $this->finish = true;
+            }
+        }
+        //$key为空,返回全部
+        if (empty($key)) {
+            return $this->configs;
+        }
+        return isset($this->configs[$key]) ? $this->configs[$key] : '';
+    }
+
+    /**
+     * @param $path string 配置路径
+     * @author DJM <op87960@gmail.com>
+     * @todo  加载文件系统中的配置
+     */
+    private function initConfig($path)
+    {
+        //现加载全局配置
+        $file_path = $path . '/configs.php';
         $config = array();
         if (file_exists($file_path)) {
-            $config = require $file_path;
+            $config = require_once $file_path;
         }
-        $this->configs[$path] = $config;
-    }
-
-    function offsetGet($key)
-    {
-        //当前目录配置是否加载,否则先加载配置
-        if (!isset($this->configs[$this->path])) {
-            $this->getConfig($this->path);
+        if (is_array($config)) {
+            $this->configs = array_merge($this->configs, $config);
         }
-
-        //检查当前目录配置是否存在此key
-        if (key_exists($key, $this->configs[$this->path])) {
-            return $this->configs[$this->path][$key];
-        } elseif ($this->path == __DIR__) {
-            //如果目录为库目录,则寻找结束,直接返回
-            return $this->configs[__DIR__][$key];
-        }
-
-        //module目录配置是否加载,否则先加载配置
-        if (!isset($this->configs[APP_ROOT])) {
-            $this->getConfig(APP_ROOT);
-        }
-        //检查module配置是否存在此key
-        if (key_exists($key, $this->configs[APP_ROOT])) {
-            return $this->configs[$this->path][$key];
-        }
-
-        //全局配置是否加载,否则先加载配置
-        if (!isset($this->configs[__DIR__])) {
-            $this->getConfig(__DIR__, $key);
-        }
-
-        return isset($this->configs[__DIR__][$key]) ? $this->configs[__DIR__][$key] : '';
-    }
-
-    function offsetSet($key, $value)
-    {
-        $this->configs[$this->path][$key] = $value;
-//        throw new \Exception("cannot write config file.");
-    }
-
-    function offsetExists($key)
-    {
-        return isset($this->configs[$key]);
-    }
-
-    function offsetUnset($key)
-    {
-        unset($this->configs[$key]);
     }
 }

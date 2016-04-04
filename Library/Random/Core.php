@@ -48,21 +48,20 @@ class Core
         Exception::Register();
 
         //载入配置
-        $config = Factory::getConfig(__DIR__);
+        Factory::getConfig(__DIR__);
 
-        //注册配置
-        Register::set('config', $config);
-
-        if (is_array($config['router'])) {
+        $routerConfig = Config::get('router');
+        if (is_array($routerConfig)) {
             //根据配置载入命名空间
-            foreach ($config['router'] as $key => $value) {
+            foreach ($routerConfig as $key => $value) {
                 $this->_classLoader->addNamespace($key, BASE_ROOT . $value);
             }
         }
 
         //加载钩子
-        if (is_array($config['hook'])) {
-            foreach ($config['hook'] as $key => $value) {
+        $hookConfig = Config::get('hook');
+        if (is_array($hookConfig)) {
+            foreach ($hookConfig as $key => $value) {
                 Hook::add($key, $value);
             }
         }
@@ -71,10 +70,10 @@ class Core
         Register::set('autoload', $this->_classLoader);
 
         //设置时区
-        date_default_timezone_set($config['default_timezone']);
+        date_default_timezone_set(Config::get('default_timezone'));
 
         //加载库全局函数
-        require __DIR__ . '/Common/functions.php';
+        require 'functions.php';
 
         //设置debug选项
         if (DEBUG) {
@@ -99,7 +98,7 @@ class Core
         list($module, $controller, $method) = Router::parseUrl();
 
         //检查是否存在模块
-        if (!is_dir(APP_ROOT . '/' . $module)) {
+        if (!is_dir(Config::get('path.APP_ROOT') . '/' . $module)) {
             throw new \Exception('404,module:' . $module . ' not found');
         }
 
@@ -130,9 +129,19 @@ class Core
 
         //注册Request对象
         Register::set('request', $request);
-        
+
         //钩子
         Hook::listen('APP_START');
+
+        //加载库函数
+        if (file_exists($modulePath . 'functions.php')) {
+            require $modulePath . 'functions.php';
+        }
+
+        //加载模块库函数
+        if (file_exists(dirname($modulePath) . 'functions.php')) {
+            require dirname($modulePath) . 'functions.php';
+        }
 
         //执行目标方法
         $response = call_user_func(array($class, $method), $request);
