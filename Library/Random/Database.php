@@ -27,8 +27,7 @@ class Database
         if (!isset(self::$instance)) {
 
             //返回配置中的数据库实例
-            $config = Register::get('config');
-            $db_info = $config['database'];
+            $db_info = Config::get('database');
             $class = 'Random\\Db\\' . ucwords($db_info['type']);
 
             self::$instance = new $class($db_info['host'], $db_info['username'], $db_info['password'], $db_info['database'], $db_info['port']);

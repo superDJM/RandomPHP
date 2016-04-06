@@ -19,6 +19,9 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
      */
     public function initConfig($path)
     {
+        if(!defined('BASE_ROOT')){
+            define('BASE_ROOT', '../');
+        }
         Config::getInstance($path);
     }
 
@@ -28,7 +31,6 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetOneOrMoreConfig()
     {
-        define('BASE_ROOT', '../');
         $this->initConfig('..//Library/Random');
         $this->assertEquals('PRC', Config::get('default_timezone'));
         $this->assertEquals('mysqli', Config::get('database.type'));
