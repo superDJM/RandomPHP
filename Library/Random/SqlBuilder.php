@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: qiming.c <qiming.c@foxmail.com>
  * Date: 2016/4/6
- * Time: 20:09
+ * Time: 21:51
  */
 /*
  * Example:
@@ -18,18 +18,19 @@ namespace Random;
 
 class SqlBuilder
 {
-    protected $_error  = '';
-    protected $_where  = '';
-    protected $_order  = '';
-    protected $_limit  = '';
-    protected $_select = '';
-    protected $_insert = '';
-    protected $_update = '';
-    protected $_table  = '';
-    protected $_group  = '';
-    protected $_delete = '';
-    protected $_count  = '';
-    protected $_fields = array();
+    private $_error  = '';
+    private $_where  = '';
+    private $_order  = '';
+    private $_limit  = '';
+    private $_select = '';
+    private $_insert = '';
+    private $_update = '';
+    private $_table  = '';
+    private $_group  = '';
+    private $_delete = '';
+    private $_count  = '';
+    private $_fields = array();
+    protected $_type = '';
     protected $_handle ;
 
 
@@ -37,10 +38,11 @@ class SqlBuilder
     {
         $this->_table = "`".$table."`";
         $this->_handle = Factory::getDatabase();
+        $this->_type = get_class($this->_handle->conn);
         $data = $this->_handle->getArray("SHOW COLUMNS FROM ".$this->_table);
         foreach ($data as $arr) {
             $this->_fields[$arr['Field']]=$arr['Type'];
-            if ($arr['Key']){
+            if ($arr['Key']=='PRI'){
                 $this->_fields['_pk'] = $arr['Field'];
             }
         }
@@ -189,21 +191,6 @@ class SqlBuilder
         $this->_count = 'SELECT COUNT('.$count.') FROM '.$this->_table;
     }
 
-
-    protected function resetargs()
-    {
-        $this->_where  = '';
-        $this->_order  = '';
-        $this->_limit  = '';
-        $this->_select = '';
-        $this->_update = '';
-        $this->_insert = '';
-        $this->_group  = '';
-        $this->_delete = '';
-        $this->_error  = '';
-        $this->_count  = '';
-    }
-
     /**
      * @return array (字段名=>类型)
      */
@@ -222,7 +209,7 @@ class SqlBuilder
 
     public function __destruct()
     {
-        $this->_handle->close();
+
     }
 
     /**
@@ -243,6 +230,20 @@ class SqlBuilder
         } elseif ($this->_insert && $this->_delete) {
             $this->_error.="Error:不能同时使用insert和delete ";
         }
+    }
+
+    protected function resetargs()
+    {
+        $this->_where  = '';
+        $this->_order  = '';
+        $this->_limit  = '';
+        $this->_select = '';
+        $this->_update = '';
+        $this->_insert = '';
+        $this->_group  = '';
+        $this->_delete = '';
+        $this->_error  = '';
+        $this->_count  = '';
     }
 
     /**
@@ -310,7 +311,11 @@ class SqlBuilder
     protected function check($val)
     {
         if (is_string($val)) {
-            $val = mysqli_real_escape_string($this->_handle->conn, $val);
+            if ($this->_type=='mysqli') {
+                $val = $this->_handle->conn->real_escape_string($val);
+            } else {
+                $val = addslashes($val);
+            }
             return "'$val'";
         } else {
             return $val;
