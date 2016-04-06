@@ -1,9 +1,9 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: qiming.c
+ * User: qiming.c <qiming.c@foxmail.com>
  * Date: 2016/4/6
- * Time: 19:21
+ * Time: 20:09
  */
 /*
  * Example:
@@ -49,8 +49,8 @@ class SqlBuilder
     /**
      *
      * @access public
-     * @param  string or array $where
-     * @param  array $vals
+     * @param  $where
+     * @param  $vals
      * @return $this
      * @example  where("name='A'") Or where("name=%s", array('A')) Or where(array('id'=>'1', 'name'=>'A'))
      */
@@ -114,7 +114,7 @@ class SqlBuilder
     }
 
     /**
-     * @return sql语句
+     * @return string sql语句
      * @todo 构建sql语句
      */
     public function buildSql()
@@ -190,7 +190,7 @@ class SqlBuilder
     }
 
 
-    public function resetargs()
+    protected function resetargs()
     {
         $this->_where  = '';
         $this->_order  = '';
@@ -205,7 +205,7 @@ class SqlBuilder
     }
 
     /**
-     * @return array(字段名=>类型)
+     * @return array (字段名=>类型)
      */
     public function getFields()
     {
@@ -213,7 +213,7 @@ class SqlBuilder
     }
 
     /**
-     * @return 主键的字段名
+     * @return string 主键的字段名
      */
     public function getPrimaryKey()
     {
@@ -228,7 +228,7 @@ class SqlBuilder
     /**
      * @todo sql语句的检测
      */
-    public function checkSql()
+    protected function checkSql()
     {
         if ($this->_select && $this->_update) {
             $this->_error.="Error:不能同时使用select和update ";
@@ -247,10 +247,10 @@ class SqlBuilder
 
     /**
      * @param $array
-     * @return 处理过的数组
+     * @return array 处理过的数组
      * @todo 对array参数进行检测、转义和处理.
      */
-    public function checkArrayVal($array=array(), $fun)
+    protected function checkArrayVal($array=array(), $fun)
     {
         $array = $this->checkField($array);
         if (empty($array)) {
@@ -263,10 +263,10 @@ class SqlBuilder
 
     /**
      * @param $array
-     * @return 去除不存在字段的数组
-     * @todo 字段检测,若不存在则忽略
+     * @return array
+     * @todo 字段检测,去除不存在字段
      */
-    public function checkField($array)
+    protected function checkField($array)
     {
         $returnArray = array();
         if (!($this->is_assoc($array))) {
@@ -284,12 +284,12 @@ class SqlBuilder
     }
 
     /**
-     * @param 字段名 $key
+     * @param  $key
      * @param $val
-     * @return 处理过的$val
+     * @return string
      * @todo 对参数进行强制转换和转义
      */
-    public function checkValue($key, $val)
+    protected function checkValue($key, $val)
     {
         $field = $this->_fields[$key];
         if ((substr($field, 0, 3) == 'int') && (!is_int($val))) {
@@ -305,8 +305,9 @@ class SqlBuilder
     /**
      * @param $val
      * @todo 对数据进行转义处理
+     * @return string
      */
-    public function check($val)
+    protected function check($val)
     {
         if (is_string($val)) {
             $val = mysqli_real_escape_string($this->_handle->conn, $val);
@@ -321,7 +322,7 @@ class SqlBuilder
      * @return boolean
      * @todo 判断是否关联数组
      */
-    public function is_assoc($arr=array())
+    protected function is_assoc($arr=array())
     {
         return array_keys($arr) !== range(0, count($arr) - 1);
     }

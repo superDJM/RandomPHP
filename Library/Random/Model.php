@@ -1,9 +1,9 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: Administrator
+ * User: qiming.c <qiming.c@foxmail.com>
  * Date: 2016/4/6
- * Time: 19:21
+ * Time: 20:09
  */
 
 namespace Random;
@@ -14,7 +14,7 @@ class Model extends SqlBuilder
 
     /**
      * @todo 执行链式操作
-     * @return sql语句执行结果
+     * @return array or boolean
      * @example  $ModelObject->select()->execute();
      */
     public function execute()
@@ -24,8 +24,9 @@ class Model extends SqlBuilder
     }
 
     /**
+     * @param $sql
      * @todo 不使用链式操作，直接执行sql语句
-     * @return sql语句执行结果
+     * @return array or boolean
      */
     public function query($sql)
     {
@@ -37,7 +38,8 @@ class Model extends SqlBuilder
     }
 
     /**
-     * @return 单条数据
+     * @todo 返回单条数据
+     * @return array
      */
     public function getOne()
     {
