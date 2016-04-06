@@ -15,9 +15,9 @@ class Model extends SqlBuilder
     /**
      * @todo 执行链式操作
      * @return sql语句执行结果
-     * @example  $ModelObject->select()->exacute();
+     * @example  $ModelObject->select()->execute();
      */
-    public function exacute()
+    public function execute()
     {
         $sql = $this->buildSql();
         return $this->query($sql);
