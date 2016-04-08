@@ -16,6 +16,12 @@ interface IDatabase
 
     function query($sql);
 
+    function commit();
+
+    function rollback();
+
+    function begin_transaction();
+
     public function getArray($sql);
 
     public function getRow($sql);

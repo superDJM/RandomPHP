@@ -13,6 +13,10 @@ use Random\IDatabase;
 class Db implements IDatabase
 {
     public $conn;
+    protected $_error;
+    protected $_insertId;
+    protected $_affectedRows;
+    protected $_fieldCount;
 
     protected $host;
     protected $username;
@@ -29,19 +33,66 @@ class Db implements IDatabase
         $this->port = $port;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getError()
+    {
+        return $this->_error;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getInsertId()
+    {
+        return $this->_insertId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAffectedRows()
+    {
+        return $this->_affectedRows;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFieldCount()
+    {
+        return $this->_fieldCount;
+    }
+
     function connect($host, $username, $password, $database, $port)
     {
-        // TODO: Implement connect() method.
+
     }
 
     public function getArray($sql)
     {
-        // TODO: Implement getArray() method.
+
     }
 
     public function getRow($sql)
     {
-        // TODO: Implement getRow() method.
+
+    }
+
+    function commit()
+    {
+
+    }
+
+    function rollback()
+    {
+
+    }
+
+    function begin_transaction()
+    {
+
     }
 
 
