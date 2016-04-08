@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: qiming.c <qiming.c@foxmail.com>
- * Date: 2016/4/6
- * Time: 21:51
+ * Date: 2016/4/8
+ * Time: 17:51
  */
 /*
  * Example:
@@ -13,6 +13,7 @@
  *    $sql->update(array('name'=>'A', 'age'=>15))->where("id=1")->buildSql();
  *    $sql->add(array('id' => 16, 'name'=>'H', 'age'=>15))->buildSql();
  *    $sql->delete()->where(array('name'=>'A'))->buildSql();
+ *    $sql->select()->join('TABLE ON ...')->buildSql();
  */
 namespace Random;
 
@@ -29,6 +30,7 @@ class SqlBuilder
     private $_group  = '';
     private $_delete = '';
     private $_count  = '';
+    private $_join   = '';
     private $_fields = array();
     protected $_type = '';
     protected $_handle ;
@@ -127,7 +129,7 @@ class SqlBuilder
             $this->resetargs();
             return null;
         } elseif ($this->_select) {
-            $sql =  $this->_select.$this->_where.$this->_group.$this->_order.$this->_limit;
+            $sql =  $this->_select.$this->_join.$this->_where.$this->_group.$this->_order.$this->_limit;
         } elseif($this->_update) {
             $sql =  $this->_update.$this->_where;
         } elseif($this->_insert) {
@@ -135,7 +137,7 @@ class SqlBuilder
         } elseif ($this->_delete) {
             $sql = $this->_delete.$this->_where;
         } elseif ($this->_count) {
-            $sql = $this->_count.$this->_where;
+            $sql = $this->_count.$this->_join.$this->_where;
         }
         $this->resetargs();
         return $sql;
@@ -172,7 +174,7 @@ class SqlBuilder
 
     public function group($group)
     {
-        $this->_group = " GROUP BY `".$group."`";
+        $this->_group = " GROUP BY ".$group;
         return $this;
     }
 
@@ -186,12 +188,32 @@ class SqlBuilder
         return $this;
     }
 
+    /**
+     * @example $Object->count()->where()->buildSql()
+     * @return $this
+     * @todo 统计语句
+     */
     public function count($count='*')
     {
         $this->_count = 'SELECT COUNT('.$count.') FROM '.$this->_table;
+        return $this;
     }
 
     /**
+     * @param $join
+     * @param $style
+     * @example $Object->select()->join('TABLE ON ...')->buildSql()
+     * @return $this
+     * @todo 跨表操作
+     */
+    public function join($join, $style='INNER')
+    {
+        $this->_join = ' '.$style.' JOIN '.$join;
+        return $this;
+    }
+
+    /**
+     * @todo 获取字段信息
      * @return array (字段名=>类型)
      */
     public function getFields()
@@ -244,6 +266,7 @@ class SqlBuilder
         $this->_delete = '';
         $this->_error  = '';
         $this->_count  = '';
+        $this->_join   = '';
     }
 
     /**
