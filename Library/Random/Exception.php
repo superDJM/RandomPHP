@@ -11,9 +11,16 @@ namespace Random;
 
 class Exception extends \Exception
 {
+    private static $_debug;
 
-    public static function Register()
+    /**
+     * @param $debug bool
+     * @author DJM <op87960@gmail.com>
+     * @todo 注册错误函数回调方法
+     */
+    public static function Register($debug)
     {
+        self::$_debug = $debug;
         set_exception_handler(array(__CLASS__, 'exception_handler'));
         set_error_handler(array(__CLASS__, 'exception_error_handle'));
     }
@@ -29,6 +36,8 @@ class Exception extends \Exception
 
     static function exception_error_handle($errno, $errmsg, $filename, $linenum, $vars)
     {
-        die("filename:{$filename} in line {$linenum}<br/>".$errmsg."<br/>");
+        if (self::$_debug) {
+            die("filename:{$filename} in line {$linenum}<br/>" . $errmsg . "<br/>");
+        }
     }
 }

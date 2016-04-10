@@ -7,6 +7,8 @@
  */
 
 $config = array(
+    //DEBUG配置,开发环境改为false
+    'debug' => true,
     //关键目录设置
     'path' => array(
         'PUBLIC_ROOT' => BASE_ROOT . '/Web/Public',

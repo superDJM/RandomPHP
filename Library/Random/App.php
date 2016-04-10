@@ -12,9 +12,6 @@ if (version_compare(PHP_VERSION, '5.3.0', '<')) {
     exit;
 }
 
-//定义调试模式
-define('DEBUG', true);
-
 //我是一个入口文件,在这里载入自动载入类
 $classLoader = require 'InitAutoLoad.php';
 
