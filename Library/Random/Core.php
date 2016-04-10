@@ -44,11 +44,14 @@ class Core
         //开启session
         session_start();
 
-        //注册异常处理
-        Exception::Register();
-
         //载入配置
         Factory::getConfig(__DIR__);
+
+        //debug配置
+        $debug = Config::get('debug');
+
+        //注册异常处理
+        Exception::Register($debug);
 
         $routerConfig = Config::get('router');
         if (is_array($routerConfig)) {
@@ -76,7 +79,7 @@ class Core
         require 'functions.php';
 
         //设置debug选项
-        if (DEBUG) {
+        if ($debug) {
             ini_set("display_errors", "on");
             error_reporting(E_ALL | E_STRICT);
         } else {
