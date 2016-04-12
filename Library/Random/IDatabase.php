@@ -20,7 +20,26 @@ interface IDatabase
 
     function rollback();
 
-    function begin_transaction();
+    function beginTransaction();
+
+    function endTransaction();
+
+    public function getError();
+
+    /**
+     * @return mixed
+     */
+    public function getInsertId();
+
+    /**
+     * @return mixed
+     */
+    public function getAffectedRows();
+
+    /**
+     * @return mixed
+     */
+    public function getFieldCount();
 
     public function getArray($sql);
 

@@ -152,7 +152,7 @@ class Core
         //如果实例方法没有返回Response对象,则new一个空对象,防止send方法调用失败
         if (!($response instanceof Response)) {
             $response = new Response('');
-            if (DEBUG) {
+            if (Config::get('debug')) {
                 trigger_error('response is no defined!');
             }
         }

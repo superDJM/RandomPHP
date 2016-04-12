@@ -90,7 +90,12 @@ class Db implements IDatabase
 
     }
 
-    function begin_transaction()
+    function beginTransaction()
+    {
+
+    }
+
+    function endTransaction()
     {
 
     }
