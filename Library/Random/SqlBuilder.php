@@ -334,14 +334,13 @@ class SqlBuilder
     protected function check($val)
     {
         if (is_string($val)) {
-            // if ($this->_type=='mysqli') {
-            //     $val = $this->_handle->connect()->real_escape_string($val);
-            // } else {
-            //     $val = addslashes($val);
-            // }
-            if ( !get_magic_quotes_gpc() ){
-                $val = addslashes($val);
-            }          
+            if ($this->_type=='mysqli') {
+                $val = $this->_handle->getConnection()->real_escape_string($val);
+            } else {
+                if ( !get_magic_quotes_gpc() ){
+                    $val = addslashes($val);
+                } 
+            }
             return "'$val'";
         } else {
             return $val;
