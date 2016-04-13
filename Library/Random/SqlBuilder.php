@@ -40,7 +40,7 @@ class SqlBuilder
     {
         $this->_table = "`".$table."`";
         $this->_handle = Factory::getDatabase();
-        $this->_type = get_class($this->_handle->conn);
+        $this->_type = Config::get('database')['type'];
         $data = $this->_handle->getArray("SHOW COLUMNS FROM ".$this->_table);
         foreach ($data as $arr) {
             $this->_fields[$arr['Field']]=$arr['Type'];
@@ -334,11 +334,14 @@ class SqlBuilder
     protected function check($val)
     {
         if (is_string($val)) {
-            if ($this->_type=='mysqli') {
-                $val = $this->_handle->conn->real_escape_string($val);
-            } else {
+            // if ($this->_type=='mysqli') {
+            //     $val = $this->_handle->connect()->real_escape_string($val);
+            // } else {
+            //     $val = addslashes($val);
+            // }
+            if ( !get_magic_quotes_gpc() ){
                 $val = addslashes($val);
-            }
+            }          
             return "'$val'";
         } else {
             return $val;
