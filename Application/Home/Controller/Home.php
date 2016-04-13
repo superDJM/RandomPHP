@@ -46,9 +46,14 @@ class Home extends Controller
 
     function test()
     {
-//        $map['name'] = 'linkaibin';
-        $db_obj = Accounts::FindByName('linkaibin');
-        var_dump($db_obj);
+        $cache = Factory::getCache();
+        $cache->set('a', 'aaaaaaaa', 3);
+        $cache->set('b', array('a'=>'a', 'b'=>'b'), 3);
+        $cache->set('c', json_encode(array('a'=>'a', 'b'=>'b')), 3);
+        // $cache->set('d', function(){return 'ok';}, 3);
+        var_dump($cache->get('b'));
+        var_dump(json_decode($cache->get('c')));
+        var_dump($cache->get('d'));
 
     }
 

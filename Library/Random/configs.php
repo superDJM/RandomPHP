@@ -47,7 +47,12 @@ $config = array(
     //cookie设置
     'cookies' => array(
         'suffix' => 'randomphp'
-    )
+    ),
+    //cache设置
+    'cache'=> array(
+        'type' => 'file',
+        'dir'  => 'Temp/Cache'
+    ),
 );
 
 return $config;

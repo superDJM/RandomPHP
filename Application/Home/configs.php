@@ -11,13 +11,17 @@ $config = Array(
         'Home\\' => 'djm'
     ),
     'database'=>Array(
-        'type' => 'pdo',
+        'type' => 'mysqli',
         'host'=>'localhost',
         'username'=>'root',
-        'password' => '',
+        'password' => 'root',
         'database' => 'randomphp',
         'port'=>'3306'
-    )
+    ),
+    'cache'=>array(
+        'type' => 'file',
+        'dir' => 'Temp/Cache'
+    ),
 );
 
 return $config;

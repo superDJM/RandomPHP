@@ -57,4 +57,15 @@ class Factory
         return $database;
     }
 
+    /**
+     * @return object
+     * @author qiming.c@foxmail.com
+     * @todo  获取缓存单例
+     */
+    public static function getCache()
+    {
+        $cache = DataCache::getInstance();
+        return $cache;
+    }
+
 }

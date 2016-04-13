@@ -1,3 +1,5 @@
 .idea
 /Library/Random/phpunit.phar
 .gitignore
+/Application/home/configs.php
+/Application/Home/Controller/Home.php
