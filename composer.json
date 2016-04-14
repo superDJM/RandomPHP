@@ -1,0 +1,22 @@
+{
+  "name": "superdjm/randomphp",
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/superDJM/RandomPHP"
+    }
+  ],
+  "description": "A mvc PHP framework made by randomdoor",
+  "require": {
+    "php": ">=5.3.0"
+  },
+  "authors": [
+    {
+      "name": "djm",
+      "email": "op87960@gmail.com"
+    }
+  ],
+  "require-dev": {
+    "phpunit/phpunit": "4.8.*"
+  }
+}
