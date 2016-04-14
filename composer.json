@@ -18,5 +18,8 @@
   ],
   "require-dev": {
     "phpunit/phpunit": "4.8.*"
+  },
+  "config": {
+    "vendor-dir": "Library/vendor"
   }
 }
