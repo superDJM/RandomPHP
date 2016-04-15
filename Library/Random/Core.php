@@ -50,8 +50,11 @@ class Core
         //debug配置
         $debug = Config::get('debug');
 
+        //错误文件显示偏移量
+        $lineOffset = Config::get('line_offset');
+
         //注册异常处理
-        Exception::Register($debug);
+        Exception::Register($debug, $lineOffset);
 
         $routerConfig = Config::get('router');
         if (is_array($routerConfig)) {
@@ -113,8 +116,8 @@ class Core
             throw new \Exception('404,controller:' . $controller . ' not found');
         }
 
-        //检查方法是否存在
-        if (!method_exists($controllerNameSpace, $method)) {
+        //检查方法是否存在,method_exist只能判断方法存在,即使方法不能调用(非public),也返回true
+        if (!is_callable(array($controllerNameSpace, $method))) {
             throw new \Exception('404,method:' . $method . ' not found');
         }
 
@@ -146,8 +149,15 @@ class Core
             require dirname($modulePath) . 'functions.php';
         }
 
+        //构造传入参数
+        $args[] = $request;
+
+        //debug统计
+        if (Config::get('debug')) {
+            Debug::startCount();
+        }
         //执行目标方法
-        $response = call_user_func(array($class, $method), $request);
+        $response = call_user_func_array(array($class, $method), $args);
 
         //如果实例方法没有返回Response对象,则new一个空对象,防止send方法调用失败
         if (!($response instanceof Response)) {
@@ -157,6 +167,14 @@ class Core
             }
         }
 
+        //钩子
+        Hook::listen('APP_END');
+
+        //统计输出
+        if (Config::get('debug')) {
+            Debug::endCount();
+        }
+        
         return $response;
     }
 }

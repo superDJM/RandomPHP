@@ -9,6 +9,8 @@
 $config = array(
     //DEBUG配置,开发环境改为false
     'debug' => true,
+    //错误文件显示偏移量
+    'line_offset' => 3,
     //关键目录设置
     'path' => array(
         'PUBLIC_ROOT' => BASE_ROOT . '/Web/Public',
@@ -19,8 +21,13 @@ $config = array(
     ),
     //时区设置
     'default_timezone' => 'PRC',
-    //钩子设置
-    'hook' => array(//        'APP_START' => 'Random\\Hook\\TestHook'
+//    钩子设置
+    'hook' => array(
+//            'APP_START' => 'Random\\Hook\\CountTimeHook',
+//            'APP_END' => array(
+//                'Random\\Hook\\CountTimeHook',
+//                'Random\\Hook\\TimeHook',
+//            ),
     ),
     //路由设置
     'router' => array(
