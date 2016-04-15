@@ -81,6 +81,7 @@ class Db implements IDatabase
 
     public function getConnection()
     {
+        $this->connect($this->host, $this->username, $this->password, $this->database, $this->port);
         return $this->_conn;
     }
 
