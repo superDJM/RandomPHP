@@ -9,16 +9,8 @@
 namespace Random\Db;
 
 
-use Random\IDatabase;
-
-class Mysqli extends Db implements IDatabase
+class Mysqli extends Db
 {
-
-    function __construct($host, $username, $password, $database, $port = 3306)
-    {
-        parent::__construct($host, $username, $password, $database, $port = 3306);
-        $this->_conn = $this->connect($this->host, $this->username, $this->password, $this->database, $this->port);
-    }
 
     function connect($host, $username, $password, $database, $port = 3306)
     {

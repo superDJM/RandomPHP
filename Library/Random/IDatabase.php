@@ -41,6 +41,8 @@ interface IDatabase
      */
     public function getFieldCount();
 
+    public function getConnection();
+
     public function getArray($sql);
 
     public function getRow($sql);
