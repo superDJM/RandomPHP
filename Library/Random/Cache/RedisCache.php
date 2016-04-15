@@ -24,20 +24,20 @@ class RedisCache
             trigger_error("Redis拓展没开启，请检查");
         }
         self::$_handle = new \Redis();
-        $options = Config::get('redisoptions');
+        $options = Config::get('redis_options');
         $host =  $options['host'];
         $port =  $options['port'];
 
         if (!self::$_handle->connect($host, $port)){
             trigger_error("连接Redis失败，请检查是否开启Redis服务");
         }
-        self::$_prefix = Config::get('cacheprefix');
+        self::$_prefix = Config::get('cache_prefix');
     }
 
     /**
      * @param  string $key
      * @param  mixed $data
-     * @param  int $lifetimr
+     * @param  int $lifetime
      * @return boolean
      * @todo 设置缓存
      */
@@ -64,9 +64,9 @@ class RedisCache
     {
         $key = self::$_prefix.$key;
         $result = self::$_handle->get($key);
-        $jsondata = json_decode($result, true);
-        if ($jsondata) {
-            $data = $jsondata;
+        $json_data = json_decode($result, true);
+        if ($json_data) {
+            $data = $json_data;
         } else {
             $data = $result;
         }

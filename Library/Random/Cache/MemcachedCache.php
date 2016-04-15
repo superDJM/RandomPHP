@@ -22,20 +22,20 @@ class MemcachedCache
         if (!extension_loaded('memcached')){
             trigger_error("Memcached拓展没开启，请检查");
         }
-        $options = Config::get('memcachedoptions');
+        $options = Config::get('memcached_options');
         $host = $options['host'];
         $port = $options['port'];
         self::$_handle = new \memcached();
         if (!self::$_handle->addServer($host, $port)){
             trigger_error("连接Memcached失败，请检查是否开启Memcached服务");
         }
-        self::$_prefix = Config::get('cacheprefix');
+        self::$_prefix = Config::get('cache_prefix');
     }
 
     /**
      * @param  string $key
      * @param  mixed $data
-     * @param  int $lifetimr
+     * @param  int $lifetime
      * @return boolean
      * @todo 设置缓存
      */

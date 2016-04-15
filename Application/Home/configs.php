@@ -18,10 +18,8 @@ $config = Array(
         'database' => 'randomphp',
         'port'=>'3306'
     ),
-    'cache'=>array(
-        'type' => 'file',
-        'dir' => 'Temp/Cache'
-    ),
+    'cache_type' => 'file',
+    'file_cache_dir'  => 'Temp/Cache',
 );
 
 return $config;

@@ -49,16 +49,16 @@ $config = array(
         'suffix' => 'randomphp'
     ),
     //cache设置
-    'cachetype' => 'file', //缓存类型(file, redis, memcached)
-    'cacheprefix' => 'RandomPHP',
-    'filecachedir'  => 'Temp/Cache',
+    'cache_type' => 'file', //缓存类型(file, redis, memcached)
+    'cache_prefix' => 'RandomPHP',
+    'file_cache_dir'  => 'Temp/Cache',
     //redis设置
-    'redisoptions' => array(
+    'redis_options' => array(
         'host' => '127.0.0.1',
         'port' => 6379,
     ),
     //memcache设置
-    'memcachedoptions' => array(
+    'memcached_options' => array(
         'host' => '127.0.0.1',
         'port' => 11211,
     ),

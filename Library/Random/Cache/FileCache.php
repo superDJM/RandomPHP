@@ -20,12 +20,12 @@ class FileCache
 
     public function __construct()
     {
-        $dir   = Config::get('filecachedir');
-        self::$_prefix = Config::get('cacheprefix');
+        $dir   = Config::get('file_cache_dir');
+        self::$_prefix = Config::get('cache_prefix');
         self::$_dir = BASE_ROOT.$dir.'/FileCache';
         if (!is_dir(self::$_dir)) {
             if( !mkdir(self::$_dir, 0777, true) ){
-                trigger_error("创建".$this->_dir."文件夹失败");
+                trigger_error("创建".self::$_dir."文件夹失败");
             }
         }
     }
@@ -33,7 +33,7 @@ class FileCache
     /**
      * @param  string $key
      * @param  mixed $data
-     * @param  int $lifetimr
+     * @param  int $lifetime
      * @return boolean
      * @todo 设置缓存
      */

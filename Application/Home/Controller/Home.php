@@ -15,6 +15,8 @@ use Random\Db\Pdo;
 use Random\Factory;
 use Random\Http\JsonResponse;
 use Random\Http\Response;
+use Random\SqlBuilder;
+use Random\Model;
 
 class Home extends Controller
 {
@@ -50,13 +52,38 @@ class Home extends Controller
         $cache->set('a', 'aaaaaaaa', 3);
         $cache->set('b', array('a'=>'a', 'b'=>'b'), 3);
         $cache->set('c', json_encode(array('a'=>'a', 'b'=>'b')), 3);
-        // $cache->set('d', function(){return 'ok';}, 3);
+        $cache->set('d', '<h1>helloword</h1>', 3);
+        var_dump($cache->get('a'));
+        var_dump($cache->get('b'));
+        var_dump(json_decode($cache->get('c'), true));
+        echo $cache->get('d');
+        sleep(3);
+        var_dump($cache->get('a'));
         var_dump($cache->get('b'));
         var_dump(json_decode($cache->get('c')));
         var_dump($cache->get('d'));
 
     }
 
+    /*
+     * qiming.c
+     */
+    function testSqlBuilder(){
+        $sqlBuilder = new SqlBuilder('user');
+        echo $sqlBuilder->select()->buildSql(); echo "<br />";
+        echo $sqlBuilder->select()->where(array('id'=>'1', 'name'=>'A'))->buildSql(); echo "<br />";
+        echo $sqlBuilder->update(array('name'=>'B', 'age'=>15))->where(array('id'=>'1'))->buildSql(); echo "<br />";
+        echo $sqlBuilder->add(array('id'=>16, 'name'=>'G', 'age'=>17))->buildSql(); echo "<br />";
+    }
+
+    /*
+     * qiming.c
+     */
+    function testModel(){
+        $user = new Model('user');
+        var_dump($user->select()->where(array('id'=>1))->execute());
+        var_dump($user->select()->execute());
+    }
 //    function test()
 //    {
 //        $database = Factory::getDatabase();
