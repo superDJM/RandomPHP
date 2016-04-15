@@ -121,11 +121,21 @@ class Core
             throw new \Exception('404,method:' . $method . ' not found');
         }
 
+        //使用反射类
+        $rClass = new \ReflectionClass($controllerNameSpace);
+
+        $newRClass = $rClass->newInstanceArgs(array($module, $controller, $method));
+
+        $rMethod = $rClass->getMethod($method);
+
+
+
         //实例化controller类
-        $class = new $controllerNameSpace($module, $controller, $method);
+//        $class = new $controllerNameSpace($module, $controller, $method);
 
         //Controller的模块目录
-        $modulePath = dirname(dirname(Register::get('autoload')->loadClass($controllerNameSpace)));
+        $modulePath = dirname(dirname($rClass->getFileName()));
+//        $modulePath = dirname(dirname(Register::get('autoload')->loadClass($controllerNameSpace)));
 
         //载入配置
         Factory::getConfig($modulePath);
@@ -157,7 +167,8 @@ class Core
             Debug::startCount();
         }
         //执行目标方法
-        $response = call_user_func_array(array($class, $method), $args);
+        $response = $rMethod->invokeArgs($newRClass, $args);
+//        $response = call_user_func_array(array($class, $method), $args);
 
         //如果实例方法没有返回Response对象,则new一个空对象,防止send方法调用失败
         if (!($response instanceof Response)) {
