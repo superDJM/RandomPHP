@@ -68,7 +68,7 @@ class Exception extends \Exception
     {
         if (self::$_debug) {
             $errorMsg = "filename:{$filename} in line {$linenum}<br/>" . $errmsg . "<br/>";
-            $errorMsg .= self::getFileInfo($filename, $linenum - 3, $linenum + 3);
+            $errorMsg .= self::getFileInfo($filename, $linenum, 3);
             die($errorMsg);
         }
     }
@@ -81,6 +81,12 @@ class Exception extends \Exception
 
         $file = @file($filename);
 
-        return implode('<br/>', array_slice($file, $startLine, $len));
+        $fileInfo = array_slice($file, $startLine, $len);
+
+        $fileInfo[$offset] = "<span style='color: red'>$fileInfo[$offset]</span>";
+
+        unset($file);
+
+        return implode('<br/>', $fileInfo);
     }
 }
