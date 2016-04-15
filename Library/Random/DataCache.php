@@ -22,14 +22,13 @@ class DataCache
      */
     public static function getInstance()
     {
-        $dir   = Config::get('cache')['dir'];
-        $type  = ucwords(Config::get('cache')['type']);
+        $type  = ucwords(Config::get('cachetype'));
         if (!isset(self::$instance)) {
-            if (!in_array($type, array('File'))) {
+            if (!in_array($type, array('File', 'Redis', 'Memcached'))) {
                 $type = 'File';
             }
             $class = 'Random\\Cache\\' . ucwords($type) . 'Cache';
-            self::$instance = new $class($dir);
+            self::$instance = new $class();
         }
         return self::$instance;
     }

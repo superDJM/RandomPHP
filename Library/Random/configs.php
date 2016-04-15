@@ -49,9 +49,18 @@ $config = array(
         'suffix' => 'randomphp'
     ),
     //cache设置
-    'cache'=> array(
-        'type' => 'file',
-        'dir'  => 'Temp/Cache'
+    'cachetype' => 'file', //缓存类型(file, redis, memcached)
+    'cacheprefix' => 'RandomPHP',
+    'filecachedir'  => 'Temp/Cache',
+    //redis设置
+    'redisoptions' => array(
+        'host' => '127.0.0.1',
+        'port' => 6379,
+    ),
+    //memcache设置
+    'memcachedoptions' => array(
+        'host' => '127.0.0.1',
+        'port' => 11211,
     ),
 );
 

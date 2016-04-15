@@ -7,6 +7,7 @@
  */
 
 namespace Random\Cache;
+use Random\Config;
 
 /**
  * 实现文件缓存类
@@ -15,10 +16,12 @@ namespace Random\Cache;
 class FileCache
 {
     static $_dir;
-    static $_prefix = 'RandomPHP';
+    static $_prefix;
 
-    public function __construct($dir)
+    public function __construct()
     {
+        $dir   = Config::get('filecachedir');
+        self::$_prefix = Config::get('cacheprefix');
         self::$_dir = BASE_ROOT.$dir.'/FileCache';
         if (!is_dir(self::$_dir)) {
             if( !mkdir(self::$_dir, 0777, true) ){
@@ -37,14 +40,14 @@ class FileCache
     public function set($key, $data, $lifetime = 0)
     {
         $file = $this->getFileDir($key);
-        $this->pushContents($file, $data, $lifetime);
+        $this->pushContents($file, $data, (int)($lifetime));
 
     }
 
     /**
      * @param  string $key
      * @return mixed 数据
-     * @todo 得带缓存数据
+     * @todo 得到缓存数据
      */
     public function get($key)
     {
@@ -56,17 +59,9 @@ class FileCache
         if ($contents['time'] == 0 || $contents['time'] > time()){
             return $contents['data'];
         } else {
+            unlink($file);
             return null;
         }
-    }
-
-    /**
-     * @todo 返回缓存是否存在
-     */
-    public function has($key)
-    {
-        $file = $this->getFileDir($key);
-        return is_file($file);
     }
 
     /**
@@ -98,6 +93,15 @@ class FileCache
         return true;
     }
 
+    /**
+     * @todo 返回缓存是否存在
+     */
+    protected function has($key)
+    {
+        $file = $this->getFileDir($key);
+        return is_file($file);
+    }
+    
     protected function getFileDir($key)
     {
         return self::$_dir.'/'.$this->key2FileName($key);
