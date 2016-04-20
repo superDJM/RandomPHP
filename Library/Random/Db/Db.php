@@ -176,6 +176,17 @@ class Db implements IDatabase
     }
 
     /**
+     * @param $array
+     * @return mixed
+     * @author DJM <op87960@gmail.com>
+     * @todo 是否关联数组
+     */
+    private function is_assoc($array = array())
+    {
+        return !empty($array) && array_keys($array) !== range(0, count($array) - 1);
+    }
+
+    /**
      * @param $sql string
      * @param $param array
      * @param $mode string
@@ -192,14 +203,28 @@ class Db implements IDatabase
         $statement = $this->_conn->prepare($sql);
 
         //根据数组类型,来判断占位符的形式.
-//        if (is) {
-//
-//        }
+        $len = count($param);
+        $flag = '';
+        if ($this->is_assoc($param)) {
+            $flag = ':';
+        }
+        if ($len) {
+            $keys = array_keys($param);
+            for ($i = 0; $i < $len; $i++) {
+                $statement->bindParam($flag . $keys[$i], $param[$keys[$i]]);
+            }
+            unset($keys);
+        }
 
-        $statement->execute($param);
+        $statement->execute();
         $this->updateField($statement);
         return $statement;
     }
+
+    public function execute($sql, $option = array())
+    {
+    }
+
 
     /**
      * @author DJM <op87960@gmail.com>

@@ -43,6 +43,8 @@ interface IDatabase
 
     public function getConnection();
 
+    public function execute($sql, $option = array());
+    
     public function getArray($sql, $option = array());
 
     public function getRow($sql, $option = array());

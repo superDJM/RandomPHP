@@ -74,13 +74,26 @@ class Pdo extends Db
         if (isset($option['param']) && isset($option['mode'])) {
             $result = $this->query($sql, $option['param'], $option['mode']);
         } else if (isset($option['param']) && !isset($option['mode'])) {
-            $result = $this->query($sql, $option);
+            $result = $this->query($sql, $option['param']);
         } else {
             $result = $this->query($sql);
         }
         return $result;
     }
 
+    /**
+     * @param $sql
+     * @param array $option
+     * @return mixed
+     * @author DJM <op87960@gmail.com>
+     * @todo 直接执行
+     */
+    public function execute($sql, $option = array())
+    {
+        $result = $this->getResult($sql, $option);
+        return $result;
+    }
+    
     public function getRow($sql, $option = array())
     {
         $result = $this->getResult($sql, $option);
