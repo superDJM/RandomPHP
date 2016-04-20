@@ -21,7 +21,6 @@ class Mysqli extends Db
             }
             $this->_conn->set_charset('utf8');
         }
-        return $this->_conn;
     }
 
     /**
@@ -49,17 +48,17 @@ class Mysqli extends Db
         return $this->_conn->autocommit(false);
     }
 
-    public function getRow($sql)
+    public function getRow($sql, $param = array())
     {
-        $result = $this->query($sql);
+        $result = $this->query($sql, $param);
         $arr = $result->fetch_assoc();
         return $arr;
     }
 
-    public function getArray($sql)
+    public function getArray($sql, $param = array())
     {
 
-        $result = $this->query($sql);
+        $result = $this->query($sql, $param);
         if ($result) {
             $result = $result->fetch_all(MYSQL_ASSOC);
         }

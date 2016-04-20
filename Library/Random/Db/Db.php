@@ -71,11 +71,23 @@ class Db implements IDatabase
     {
     }
 
-    public function getArray($sql)
+    /**
+     * @param $sql
+     * @param array $param
+     * @author DJM <op87960@gmail.com>
+     * @todo 得到关联数组数据
+     */
+    public function getArray($sql, $param = array())
     {
     }
 
-    public function getRow($sql)
+    /**
+     * @param $sql
+     * @param array $param
+     * @author DJM <op87960@gmail.com>
+     * @todo 得到一条数据
+     */
+    public function getRow($sql, $param = array())
     {
     }
 
@@ -164,19 +176,22 @@ class Db implements IDatabase
     }
 
     /**
-     * @param $sql
+     * @param $sql string
+     * @param $param array
      * @return mixed
      * @author DJM <op87960@gmail.com>
+     * @example query("select * from `user` where `id` = :id", array(':id'=>'2'));
      * @todo sql查询
      */
-    function query($sql)
+    function query($sql, $param = array())
     {
         if (empty($this->_conn)) {
-            $this->_conn = $this->connect($this->host, $this->username, $this->password, $this->database, $this->port);
+            $this->connect($this->host, $this->username, $this->password, $this->database, $this->port);
         }
-        $result = $this->_conn->query($sql);
-        $this->updateField($result);
-        return $result;
+        $statement = $this->_conn->prepare($sql);
+        $statement->execute($param);
+        $this->updateField($statement);
+        return $statement;
     }
 
     /**

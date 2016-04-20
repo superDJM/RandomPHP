@@ -14,7 +14,7 @@ interface IDatabase
 
     function connect($host, $username, $password, $database, $port);
 
-    function query($sql);
+    function query($sql, $param);
 
     function commit();
 
@@ -43,9 +43,9 @@ interface IDatabase
 
     public function getConnection();
 
-    public function getArray($sql);
+    public function getArray($sql, $param = array());
 
-    public function getRow($sql);
+    public function getRow($sql, $param = array());
 
     function close();
 }
