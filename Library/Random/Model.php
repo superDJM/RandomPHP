@@ -20,7 +20,7 @@ class Model extends SqlBuilder
     public function execute()
     {
         $sql = $this->buildSql();
-        return $this->query($sql);
+        return $this->query($sql['sql'], $sql['option']);
     }
 
     /**
@@ -28,12 +28,12 @@ class Model extends SqlBuilder
      * @todo 不使用链式操作，直接执行sql语句
      * @return array or boolean
      */
-    public function query($sql)
+    public function query($sql, $param=null)
     {
         if (preg_match('/SELECT/i', $sql)) {
-            return $this->_handle->getArray($sql);
+            return $this->_handle->getArray($sql, $param);
         } else {
-            return $this->_handle->query($sql);
+            return $this->_handle->query($sql, $param);
         }
     }
 
@@ -45,9 +45,9 @@ class Model extends SqlBuilder
     {
         $sql = $this->buildSql();
         if (preg_match('/SELECT/i', $sql)) {
-            return $this->_handle->getRow($sql);
+            return $this->_handle->getRow($sql['sql'], $sql['option']);
         } else {
-            return $this->_handle->query($sql);
+            return $this->_handle->query($sql['sql'], $sql['option']);
         }
     }
 }

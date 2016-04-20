@@ -31,6 +31,7 @@ class SqlBuilder
     private $_delete = '';
     private $_count  = '';
     private $_join   = '';
+    private $_param  = null;
     private $_fields = array();
     protected $_type = '';
     protected $_handle ;
@@ -53,7 +54,7 @@ class SqlBuilder
     /**
      *
      * @access public
-     * @param  $where
+     * @param  array() $where
      * @param  $vals
      * @return $this
      * @example  where("name='A'") Or where("name=%s", array('A')) Or where(array('id'=>'1', 'name'=>'A'))
@@ -93,7 +94,7 @@ class SqlBuilder
     }
 
     /**
-     * @param  string or array $select
+     * @param  mixed $select
      * @example  select(array('id', 'name', 'age') Or select("id, name, age")
      * @return $this
      */
@@ -118,29 +119,21 @@ class SqlBuilder
     }
 
     /**
-     * @return string sql语句
+     * @return array('sql'=>sql语句, 'option'=>array('param'=>参数数组, 'type'=>读写类型, 'table'=>表名))
      * @todo 构建sql语句
      */
     public function buildSql()
     {
-        $this->checkSql();
-        if ($this->_error) {
-            trigger_error($this->_error);
-            $this->resetargs();
-            return null;
-        } elseif ($this->_select) {
-            $sql =  $this->_select.$this->_join.$this->_where.$this->_group.$this->_order.$this->_limit;
-        } elseif($this->_update) {
-            $sql =  $this->_update.$this->_where;
-        } elseif($this->_insert) {
-            $sql = $this->_insert;
-        } elseif ($this->_delete) {
-            $sql = $this->_delete.$this->_where;
-        } elseif ($this->_count) {
-            $sql = $this->_count.$this->_join.$this->_where;
+        $return['option']['param'] = $this->_param;
+        $sql = $this->getSql();
+        if (preg_match('/INSERT/i', $sql) || preg_match('/UPDATE/i', $sql)) {
+            $return['option']['type'] = 'w';
+        } else {
+            $return['option']['type'] = 'r';
         }
-        $this->resetargs();
-        return $sql;
+        $return['option']['table'] = trim($this->_table, '`');
+        $return['sql'] = $sql;
+        return $return;
     }
 
     /**
@@ -229,11 +222,6 @@ class SqlBuilder
         return $this->_fields['_pk'];
     }
 
-    public function __destruct()
-    {
-
-    }
-
     /**
      * @todo sql语句的检测
      */
@@ -267,6 +255,7 @@ class SqlBuilder
         $this->_error  = '';
         $this->_count  = '';
         $this->_join   = '';
+        $this->_param  = null;
     }
 
     /**
@@ -323,29 +312,31 @@ class SqlBuilder
         } elseif ((substr($field, 0, 3) == 'dou') && (!is_double($val))) {
             $val = (double)($val);
         }
-        return $this->check($val);
+        $placeholder = ':'.$key;
+        $this->_param[$key] = $val;
+        return $placeholder;
     }
 
-    /**
-     * @param $val
-     * @todo 对数据进行转义处理
-     * @return string
-     */
-    protected function check($val)
-    {
-        if (is_string($val)) {
-            if ($this->_type=='mysqli') {
-                $val = $this->_handle->getConnection()->real_escape_string($val);
-            } else {
-                if ( !get_magic_quotes_gpc() ){
-                    $val = addslashes($val);
-                } 
-            }
-            return "'$val'";
-        } else {
-            return $val;
-        }
-    }
+    // /**
+    //  * @param $val
+    //  * @todo 对数据进行转义处理
+    //  * @return string
+    //  */
+    // protected function check($val)
+    // {
+    //     if (is_string($val)) {
+    //         if ($this->_type=='mysqli') {
+    //             $val = $this->_handle->getConnection()->real_escape_string($val);
+    //         } else {
+    //             if ( !get_magic_quotes_gpc() ){
+    //                 $val = addslashes($val);
+    //             } 
+    //         }
+    //         return "'$val'";
+    //     } else {
+    //         return $val;
+    //     }
+    // }
 
     /**
      * @param  $arr
@@ -356,5 +347,26 @@ class SqlBuilder
     {
         return array_keys($arr) !== range(0, count($arr) - 1);
     }
-}
 
+    protected function getSql()
+    {
+        $this->checkSql();
+        if ($this->_error) {
+            trigger_error($this->_error);
+            $this->resetargs();
+            return null;
+        } elseif ($this->_select) {
+            $sql =  $this->_select.$this->_join.$this->_where.$this->_group.$this->_order.$this->_limit;
+        } elseif($this->_update) {
+            $sql =  $this->_update.$this->_where;
+        } elseif($this->_insert) {
+            $sql = $this->_insert;
+        } elseif ($this->_delete) {
+            $sql = $this->_delete.$this->_where;
+        } elseif ($this->_count) {
+            $sql = $this->_count.$this->_join.$this->_where;
+        }
+        $this->resetargs();
+        return $sql;
+    }
+}
