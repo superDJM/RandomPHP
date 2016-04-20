@@ -28,6 +28,12 @@ class Core
         $this->_classLoader = $classLoader;
     }
 
+    /**
+     * @param $classLoader
+     * @return Core
+     * @author DJM <op87960@gmail.com>
+     * @todo 取得Core的实例
+     */
     static function getInstance($classLoader)
     {
         if (empty(self::$instance)) {
@@ -36,11 +42,15 @@ class Core
         return self::$instance;
     }
 
+    /**
+     * @return $this
+     * @author DJM <op87960@gmail.com>
+     * @todo 系统初始化
+     */
     function init()
     {
         //防止预先输出
         ob_start();
-
         //开启session
         session_start();
 

@@ -178,17 +178,24 @@ class Db implements IDatabase
     /**
      * @param $sql string
      * @param $param array
+     * @param $mode string
      * @return mixed
      * @author DJM <op87960@gmail.com>
      * @example query("select * from `user` where `id` = :id", array(':id'=>'2'));
      * @todo sql查询
      */
-    function query($sql, $param = array())
+    function query($sql, $param = array(), $mode = '')
     {
         if (empty($this->_conn)) {
             $this->connect($this->host, $this->username, $this->password, $this->database, $this->port);
         }
         $statement = $this->_conn->prepare($sql);
+
+        //根据数组类型,来判断占位符的形式.
+//        if (is) {
+//
+//        }
+
         $statement->execute($param);
         $this->updateField($statement);
         return $statement;

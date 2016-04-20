@@ -62,18 +62,36 @@ class Pdo extends Db
         return $this->_conn->beginTransaction();
     }
 
-    public function getRow($sql, $param = array())
+    /**
+     * @param $sql
+     * @param $option
+     * @return mixed
+     * @author DJM <op87960@gmail.com>
+     * @todo 根据传参来确定调用方法的参
+     */
+    private function getResult($sql, $option)
     {
-        $result = $this->query($sql, $param);
+        if (isset($option['param']) && isset($option['mode'])) {
+            $result = $this->query($sql, $option['param'], $option['mode']);
+        } else if (isset($option['param']) && !isset($option['mode'])) {
+            $result = $this->query($sql, $option);
+        } else {
+            $result = $this->query($sql);
+        }
+        return $result;
+    }
+
+    public function getRow($sql, $option = array())
+    {
+        $result = $this->getResult($sql, $option);
         $result->setFetchMode(\PDO::FETCH_ASSOC);
         $arr = $result->fetch();
         return $arr;
     }
 
-    public function getArray($sql, $param = array())
+    public function getArray($sql, $option = array())
     {
-
-        $result = $this->query($sql, $param);
+        $result = $this->getResult($sql, $option);
         if ($result) {
             $result->setFetchMode(\PDO::FETCH_ASSOC);
             $result = $result->fetchAll();
