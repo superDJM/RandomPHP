@@ -54,7 +54,7 @@ class SqlBuilder
     /**
      *
      * @access public
-     * @param  array() $where
+     * @param  mixed $where
      * @param  $vals
      * @return $this
      * @example  where("name='A'") Or where("name=%s", array('A')) Or where(array('id'=>'1', 'name'=>'A'))

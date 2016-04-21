@@ -25,29 +25,17 @@ class Model extends SqlBuilder
 
     /**
      * @param $sql
+     * @param array $param
      * @todo 不使用链式操作，直接执行sql语句
      * @return array or boolean
      */
-    public function query($sql, $param=null)
+    public function query($sql, $param=array())
     {
         if (preg_match('/SELECT/i', $sql)) {
             return $this->_handle->getArray($sql, $param);
         } else {
-            return $this->_handle->query($sql, $param);
+            return $this->_handle->execute($sql, $param);
         }
     }
 
-    /**
-     * @todo 返回单条数据
-     * @return array
-     */
-    public function getOne()
-    {
-        $sql = $this->buildSql();
-        if (preg_match('/SELECT/i', $sql)) {
-            return $this->_handle->getRow($sql['sql'], $sql['option']);
-        } else {
-            return $this->_handle->query($sql['sql'], $sql['option']);
-        }
-    }
 }
