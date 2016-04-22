@@ -351,10 +351,11 @@ class SqlBuilder
     protected function getSql()
     {
         $this->checkSql();
+        $sql = null;
         if ($this->_error) {
             trigger_error($this->_error);
             $this->resetargs();
-            return null;
+            return $sql;
         } elseif ($this->_select) {
             $sql =  $this->_select.$this->_join.$this->_where.$this->_group.$this->_order.$this->_limit;
         } elseif($this->_update) {
