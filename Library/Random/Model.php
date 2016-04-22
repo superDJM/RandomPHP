@@ -12,6 +12,18 @@ namespace Random;
 class Model extends SqlBuilder
 {
 
+    public function getOne()
+    {
+        $sql = $this->buildSql();
+        return $this->_handle->getRow($sql['sql'], $sql['option']);
+    }
+
+    public function getAll()
+    {
+        $sql = $this->buildSql();
+        return $this->_handle->getArray($sql['sql'], $sql['option']);
+    }
+
     /**
      * @todo 执行链式操作
      * @return array or boolean
