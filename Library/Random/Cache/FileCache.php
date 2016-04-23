@@ -8,12 +8,13 @@
 
 namespace Random\Cache;
 use Random\Config;
+use Random\IDataCache;
 
 /**
  * 实现文件缓存类
  */
 
-class FileCache
+class FileCache implements IDataCache
 {
     static $_dir;
     static $_prefix;
@@ -41,7 +42,6 @@ class FileCache
     {
         $file = $this->getFileDir($key);
         $this->pushContents($file, $data, (int)($lifetime));
-
     }
 
     /**
@@ -55,19 +55,17 @@ class FileCache
             return null;
         }
         $file = $this->getFileDir($key);  
-        $contents = $this->getContents($file);
-        if ($contents['time'] == 0 || $contents['time'] > time()){
-            return $contents['data'];
-        } else {
-            unlink($file);
-            return null;
+        $data = $this->getContents($file);
+        if (!empty($data)) {
+            return $data;
         }
+        return null;
     }
 
     /**
      * @todo 删除一条缓存
      */
-    public function delete($key)
+    public function remove($key)
     {
         $file = $this->getFileDir($key);
         if ($this->has($key)) {
@@ -117,9 +115,18 @@ class FileCache
         $contents = file_get_contents($file);
 
         if ($contents) {
-            return unserialize($contents);
+            if ( function_exists('gzuncompress')){
+                $contents = gzuncompress($contents);
+            }
+            $contents =  unserialize($contents);
+            if ($contents['time'] == 0 || $contents['time'] > time()){
+                return $contents['data'];
+            } else {
+                unlink($file);
+                return null;
+            }
         } else {
-            return false;
+            return null;
         }
     }
 
@@ -127,7 +134,11 @@ class FileCache
     {
         $contents['time'] = $lifetime == 0 ? 0 : time() + $lifetime;
         $contents['data'] = $data;
-        $result = file_put_contents($file, serialize($contents));
+        $contents = serialize($contents);
+        if (function_exists('gzcompress')) {
+            $contents = gzcompress($contents);
+        }
+        $result = file_put_contents($file, $contents);
         if ($result) {
             return true;
         } else {

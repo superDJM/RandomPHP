@@ -22,7 +22,7 @@ class DataCache
      */
     public static function getInstance()
     {
-        $type  = ucwords(Config::get('cachetype'));
+        $type  = ucwords(Config::get('cache_type'));
         if (!isset(self::$instance)) {
             if (!in_array($type, array('File', 'Redis', 'Memcached'))) {
                 $type = 'File';

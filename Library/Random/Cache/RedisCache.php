@@ -8,11 +8,12 @@
 
 namespace Random\Cache;
 use Random\Config;
+use Random\IDataCache;
 
 /**
  * 实现Redis缓存类
  */
-class RedisCache
+class RedisCache implements IDataCache
 {
     private static $_handle;
     private static $_prefix;
@@ -74,9 +75,10 @@ class RedisCache
     }
 
     /**
+     * @param $key
      * @todo 删除一条缓存
      */
-    public function delete($key)
+    public function remove($key)
     {
         $key = self::$_prefix.$key;
         return self::$_handle->delete($key);

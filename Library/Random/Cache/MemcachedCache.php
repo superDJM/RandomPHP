@@ -8,11 +8,12 @@
 
 namespace Random\Cache;
 use Random\Config;
+use Random\IDataCache;
 
 /**
  * 实现Memcached缓存类
  */
-class MemcachedCache
+class MemcachedCache implements IDataCache
 {
     private static $_handle;
     private static $_prefix;
@@ -63,9 +64,11 @@ class MemcachedCache
     }
 
     /**
+     * @param $key
      * @todo 删除一条缓存
+     * @return boolean
      */
-    public function delete($key)
+    public function remove($key)
     {
         $key = self::$_prefix.$key;
         return self::$_handle->delete($key);
