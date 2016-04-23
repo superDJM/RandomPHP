@@ -9,5 +9,5 @@
 //网站根目录
 define('BASE_ROOT', '../');
 
-require BASE_ROOT . '/Library/Random/App.php';
+require BASE_ROOT . 'Library/Random/App.php';
 
