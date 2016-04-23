@@ -14,7 +14,7 @@ class Model extends SqlBuilder
 
     public function getOne()
     {
-        $sql = $this->buildSql();
+        $sql = $this->limit(1)->buildSql();
         return $this->_handle->getRow($sql['sql'], $sql['option']);
     }
 
