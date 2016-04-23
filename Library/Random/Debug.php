@@ -20,12 +20,12 @@ class Debug
     /**
      * @var float 开始运行时间
      */
-    static $startTime;
+    static $startTime = array();
 
     /**
      * @var float 开始占用内存
      */
-    static $startMem;
+    static $startMem = array();
 
 
     /**
@@ -37,8 +37,8 @@ class Debug
     static function startCount($time = true, $mem = true)
     {
         //根据传入参数判断是否开启记录
-        ($time && function_exists('microtime')) ? self::$startTime = microtime(true) : false;
-        ($mem && function_exists('memory_get_usage')) ? self::$startMem = memory_get_usage(true) : false;
+        ($time && function_exists('microtime')) ? self::$startTime[] = microtime(true) : false;
+        ($mem && function_exists('memory_get_usage')) ? self::$startMem[] = memory_get_usage(true) : false;
     }
 
     /**
@@ -51,7 +51,7 @@ class Debug
         echo '<br/><span>', $extra, '</span>';
 
         if (self::$startTime && function_exists('microtime')) {
-            $usedTime = microtime(true) - self::$startTime;
+            $usedTime = microtime(true) - array_pop(self::$startTime);
 
             //转化ms显示
             $usedTime *= 1000;
@@ -63,7 +63,7 @@ class Debug
 
         if (self::$startMem && function_exists('memory_get_usage')) {
             //根据大小转换单位
-            $usedMem = self::convert(memory_get_usage(true) - self::$startMem);
+            $usedMem = self::convert(memory_get_usage(true) - array_pop(self::$startMem));
 
             echo '<h2>usedMem: ', $usedMem, '</h2><br/>';
         }
