@@ -173,7 +173,7 @@ class Core
         $args[] = $request;
 
         //debug统计
-        if (Config::get('debug')) {
+        if (class_exists('Random\\Config') && Config::get('debug')) {
             Debug::startCount();
         }
         //执行目标方法
@@ -192,7 +192,7 @@ class Core
         Hook::listen('APP_END');
 
         //统计输出
-        if (Config::get('debug')) {
+        if (class_exists('Random\\Config') && Config::get('debug')) {
             Debug::endCount();
         }
         

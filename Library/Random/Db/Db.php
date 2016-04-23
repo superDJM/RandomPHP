@@ -8,6 +8,8 @@
 
 namespace Random\Db;
 
+use Random\Config;
+use Random\Debug;
 use Random\IDatabase;
 
 class Db implements IDatabase
@@ -202,6 +204,7 @@ class Db implements IDatabase
         if (empty($this->_conn)) {
             $this->connect($this->host, $this->username, $this->password, $this->database, $this->port);
         }
+        /** @var  $statement \PDOStatement */
         $statement = $this->_conn->prepare($sql);
 
         //根据数组类型,来判断占位符的形式.
@@ -218,7 +221,23 @@ class Db implements IDatabase
             unset($keys);
         }
 
+        if (class_exists('Random\\Config') && Config::get('debug')) {
+            Debug::startCount();
+        }
+
         $statement->execute();
+
+        if (class_exists('Random\\Config') && Config::get('debug')) {
+            $str = $statement->queryString;
+            if (!empty($param)) {
+                foreach ($param as $key => $value) {
+                    $str = str_replace(":$key", $value, $str);
+                }
+            }
+
+            Debug::endCount($str);
+        }
+
         $this->updateField($statement);
         return $statement;
     }

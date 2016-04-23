@@ -67,8 +67,6 @@ class Debug
 
             echo '<h2>usedMem: ', $usedMem, '</h2><br/>';
         }
-
-
     }
 
     /**
