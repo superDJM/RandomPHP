@@ -30,33 +30,56 @@ class Debug
 
     /**
      * @author DJM <op87960@gmail.com>
+     * @param $time bool 是否记录时间
+     * @param $mem bool 是否记录内存
      * @todo 记录开始数据
      */
-    static function startCount()
+    static function startCount($time = true, $mem = true)
     {
-        self::$startTime = microtime(true);
-        self::$startMem = memory_get_usage(true);
+        //根据传入参数判断是否开启记录
+        ($time && function_exists('microtime')) ? self::$startTime = microtime(true) : false;
+        ($mem && function_exists('memory_get_usage')) ? self::$startMem = memory_get_usage(true) : false;
     }
 
     /**
      * @author DJM <op87960@gmail.com>
+     * @param $extra string 额外的输出内容
      * @todo 统计用量,并输出
      */
-    static function endCount()
+    static function endCount($extra = '')
     {
-        $usedTime = microtime(true) - self::$startTime;
+        echo '<br/><span>', $extra, '</span>';
 
-        //转化ms显示
-        $usedTime *= 1000;
+        if (self::$startTime && function_exists('microtime')) {
+            $usedTime = microtime(true) - self::$startTime;
 
-        //取小数点4位
-        $usedTime = number_format($usedTime, 4);
+            //转化ms显示
+            $usedTime *= 1000;
 
-        $usedMem = memory_get_usage(true) - self::$startMem;
+            //取小数点4位
+            $usedTime = round($usedTime, 4);
+            echo '<h2>usedTime: ', $usedTime, 'ms</h2><br/>';
+        }
 
-        //转化kb显示
-        $usedMem /= 1024;
+        if (self::$startMem && function_exists('memory_get_usage')) {
+            //根据大小转换单位
+            $usedMem = self::convert(memory_get_usage(true) - self::$startMem);
 
-        echo "<br/><h2>usedTime: ", $usedTime, "ms usedMem: ", $usedMem, "kb </h2><br/>";
+            echo '<h2>usedMem: ', $usedMem, '</h2><br/>';
+        }
+
+
+    }
+
+    /**
+     * @param $size
+     * @return string
+     * @author DJM <op87960@gmail.com>
+     * @todo 转换大小为合适的单位
+     */
+    static function convert($size)
+    {
+        $unit = array('b', 'kb', 'mb', 'gb', 'tb', 'pb');
+        return ($size) ? round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i] : '0kb';
     }
 }

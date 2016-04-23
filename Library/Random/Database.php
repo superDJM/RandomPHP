@@ -28,9 +28,13 @@ class Database
 
             //返回配置中的数据库实例
             $db_info = Config::get('database');
-            $class = 'Random\\Db\\' . ucwords($db_info['type']);
+            if (strcasecmp($db_info['type'], 'mongodb')) {
+                $class = 'Random\\Db\\Pdo';
+            } else {
+                $class = 'Random\\Db\\Mongodb';
+            }
 
-            self::$instance = new $class($db_info['host'], $db_info['username'], $db_info['password'], $db_info['database'], $db_info['port']);
+            self::$instance = new $class($db_info['type'], $db_info['host'], $db_info['username'], $db_info['password'], $db_info['database'], $db_info['port']);
         }
         return self::$instance;
     }

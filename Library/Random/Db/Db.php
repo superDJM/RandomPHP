@@ -25,9 +25,11 @@ class Db implements IDatabase
     protected $password;
     protected $database;
     protected $port;
+    protected $type;
 
-    function __construct($host, $username, $password, $database, $port = 3306)
+    function __construct($type, $host, $username, $password, $database, $port = 3306)
     {
+        $this->type = $type;
         $this->host = $host;
         $this->username = $username;
         $this->password = $password;

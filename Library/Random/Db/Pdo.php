@@ -23,13 +23,10 @@ class Pdo extends Db
     function connect($host, $username, $password, $database, $port = 3306)
     {
         if (!isset($this->_conn)) {
-            $dsn = "mysql:host=$host;dbname=$database;charset=utf8";
+            $dsn = "$this->type:host=$host;dbname=$database;charset=utf8";
             $this->_conn = new \PDO($dsn, $username, $password);
-            if ($this->_conn->errorCode() == '00000') {
-                die($this->_conn->errorInfo()[2]);
-            }
             $this->_conn->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
-            $this->_conn->exec('set names utf8');
+            $this->_conn->exec('SET NAMES utf8');
         }
     }
 

@@ -55,21 +55,28 @@ class Exception extends \Exception
         }
     }
 
+    /**
+     * @param $exception \Exception
+     * @author DJM <op87960@gmail.com>
+     * @todo
+     */
     static function exception_handler($exception)
     {
         ob_clean();
         ob_start();
-        echo "Uncaught exception: ", $exception->getMessage(), "\n";
+        $errorMsg = "filename:{$exception->getFile()} in line {$exception->getLine()}<br/>" . $exception->getMessage() . "<br/>";
+        $errorMsg .= self::getFileInfo($exception->getFile(), $exception->getLine(), self::$lineOffset);
+        echo $errorMsg, '<br/><pre>', $exception->getTraceAsString(), '</pre>';
         ob_end_flush();
-        exit;
+        exit($exception->getCode());
     }
 
     static function exception_error_handle($errno, $errmsg, $filename, $linenum, $vars)
     {
         if (self::$_debug) {
             $errorMsg = "filename:{$filename} in line {$linenum}<br/>" . $errmsg . "<br/>";
-            $errorMsg .= self::getFileInfo($filename, $linenum, 3);
-            die($errorMsg);
+            $errorMsg .= self::getFileInfo($filename, $linenum, self::$lineOffset);
+            exit($errorMsg);
         }
     }
 
