@@ -26,25 +26,26 @@ class Pdo extends Db
      * @param $password
      * @param $database
      * @param int $port
+     * @return \Pdo
      * @author DJM <op87960@gmail.com>
      * @todo 数据库连接
      */
-    function connect($host, $username, $password, $database, $port = 3306)
+    function connect($host, $username, $password, $database, $port, $type)
     {
-        if (!isset($this->_conn)) {
-            $dsn = "$this->type:host=$host;dbname=$database;charset=utf8";
-            $this->_conn = new \PDO($dsn, $username, $password);
-            $this->_conn->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
-            $this->_conn->exec('SET NAMES utf8');
-        }
+        $dsn = "$type:host=$host;dbname=$database;charset=utf8";
+        $pdo = new \PDO($dsn, $username, $password);
+        $pdo->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
+        $pdo->exec('SET NAMES utf8');
+        return $pdo;
     }
 
     /**
      * @author DJM <op87960@gmail.com>
+     * @param $conn \PDO 数据库连接
      * @param $result mixed
      * @todo 请求后更新成员变量$_error等
      */
-    protected function updateField($result)
+    protected function updateField($conn, $result)
     {
         if ($result) {
             $this->_affectedRows = $result->rowCount();
@@ -53,9 +54,9 @@ class Pdo extends Db
             $this->_affectedRows = 0;
             $this->_fieldCount = 0;
         }
-        $this->_error = $this->_conn->errorInfo()['2'];
-        $this->_insertId = $this->_conn->lastInsertId();
-        parent::updateField($result);
+        $this->_error = $conn->errorInfo()['2'];
+        $this->_insertId = $conn->lastInsertId();
+        parent::updateField($conn, $result);
     }
 
     /**
@@ -65,7 +66,7 @@ class Pdo extends Db
      */
     protected function begin_transaction()
     {
-        return $this->_conn->beginTransaction();
+        return $this->getConnection('w')->beginTransaction();
     }
 
     /**

@@ -12,8 +12,6 @@ namespace Random;
 interface IDatabase
 {
 
-    function connect($host, $username, $password, $database, $port);
-
     function query($sql, $param, $mode);
 
     function commit();
@@ -41,7 +39,7 @@ interface IDatabase
      */
     public function getFieldCount();
 
-    public function getConnection();
+    function getConnection($mode);
 
     public function execute($sql, $option = array());
     

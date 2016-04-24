@@ -8,35 +8,80 @@
 
 namespace Random\Db;
 
-use Random\Config;
 use Random\Debug;
 use Random\IDatabase;
 
 class Db implements IDatabase
 {
-    protected $_conn;
+
+    /**
+     * @var object 数据库连接
+     */
+    protected $_connLink = array();
+    /**
+     * @var int 事务数
+     */
     protected $transactionCounter = 0;
+    /**
+     * @var array 事务错误数组
+     */
     protected $transactionError = array();
-    protected $_error;
-    protected $_insertId;
-    protected $_affectedRows;
-    protected $_fieldCount;
+    /**
+     * @var string 数据库错误信息
+     */
+    protected $_error = '';
+    /**
+     * @var int 插入id
+     */
+    protected $_insertId = 0;
+    /**
+     * @var int 影响行数
+     */
+    protected $_affectedRows = 0;
+    /**
+     * @var int 数据行数
+     */
+    protected $_fieldCount = 0;
 
-    protected $host;
-    protected $username;
-    protected $password;
-    protected $database;
-    protected $port;
-    protected $type;
+    /**
+     * @var bool 是否开启debug模式
+     */
+    protected $debug = false;
 
-    function __construct($type, $host, $username, $password, $database, $port = 3306)
+    /**
+     * @var array 默认配置
+     */
+    protected $config = array(
+        // 服务器地址
+        'hostname' => 'localhost',
+        // 数据库名
+        'database' => '',
+        // 数据库用户名
+        'username' => 'root',
+        // 数据库密码
+        'password' => '',
+        // 数据库连接端口
+        'port' => '',
+        // 数据库部署方式:0 集中式(单一服务器),1 分布式(主从服务器)
+        'deploy' => 0,
+        // 数据库读写是否分离 主从式有效
+        'rw_separate' => true,
+        // 读写分离后 主服务器数量
+        'master_num' => 1,
+        // 指定从服务器序号
+        'slave_no' => '',
+    );
+
+    function __construct($config = array())
     {
-        $this->type = $type;
-        $this->host = $host;
-        $this->username = $username;
-        $this->password = $password;
-        $this->database = $database;
-        $this->port = $port;
+        $this->config = array_merge($this->config, $config);
+//        $this->type = $this->config['type'];
+//        $this->host = $this->config['host'];
+//        $this->username = $this->config['username'];
+//        $this->password = $this->config['password'];
+//        $this->database = $this->config['database'];
+//        $this->port = $this->config['port'];
+        $this->debug = $this->config['debug'];
     }
 
     /**
@@ -71,7 +116,17 @@ class Db implements IDatabase
         return $this->_fieldCount;
     }
 
-    function connect($host, $username, $password, $database, $port)
+    /**
+     * @param $host
+     * @param $username
+     * @param $password
+     * @param $database
+     * @param $port
+     * @param $type string
+     * @author DJM <op87960@gmail.com>
+     * @todo 获取数据库连接
+     */
+    protected function connect($host, $username, $password, $database, $port, $type)
     {
     }
 
@@ -95,10 +150,50 @@ class Db implements IDatabase
     {
     }
 
-    public function getConnection()
+    /**
+     * @param $mode
+     * @return mixed
+     * @author DJM <op87960@gmail.com>
+     * @todo 获取数据库连接
+     */
+    public function getConnection($mode)
     {
-        $this->connect($this->host, $this->username, $this->password, $this->database, $this->port);
-        return $this->_conn;
+        if (empty($this->_connLink)) {
+            $this->_connLink['master'] =
+                $this->connect($this->config['host'], $this->config['username'],
+                    $this->config['password'], $this->config['database'], $this->config['port'], $this->config['type']);
+            if ($this->config['deploy'] && !empty($this->config['slave'])) {
+                foreach ($this->config['slave'] as $val) {
+                    $this->_connLink['slave'][] =
+                        $this->connect($val['host'], $val['username'],
+                            $val['password'], $val['database'], $val['port'], $val['type']);
+                }
+            }
+        }
+        //在事务中默认用主机
+        if ($this->transactionCounter) {
+            return $this->_connLink['master'];
+        } else if ($this->config['deploy']) {
+            switch ($mode) {
+                case 'r':
+                    return $this->randSlave();
+                case 'w':
+                default :
+                    return $this->_connLink['master'];
+            }
+        } else {
+            return $this->_connLink['master'];
+        }
+    }
+
+    /**
+     * @return \PDO
+     * @author DJM <op87960@gmail.com>
+     * @todo 得到从机
+     */
+    private function randSlave()
+    {
+        return $this->_connLink['slave'][0];
     }
 
     /**
@@ -109,7 +204,7 @@ class Db implements IDatabase
     function commit()
     {
         if (!--$this->transactionCounter) {
-            return $this->_conn->commit();
+            return $this->getConnection('w')->commit();
         }
         return $this->transactionCounter >= 0;
     }
@@ -125,7 +220,7 @@ class Db implements IDatabase
             $this->query('ROLLBACK TO trans' . ($this->transactionCounter + 1));
             return true;
         }
-        return $this->_conn->rollback();
+        return $this->getConnection('w')->rollback();
     }
 
     /**
@@ -162,7 +257,7 @@ class Db implements IDatabase
         }
         //如果是mysqli驱动则还需要调用这个方法去恢复自动提交模式
         if (!$this->transactionCounter && strpos(get_called_class(), 'Mysqli')) {
-            $this->_conn->autocommit(true);
+            $this->getConnection('w')->autocommit(true);
         }
         return $result;
     }
@@ -172,7 +267,7 @@ class Db implements IDatabase
 
     }
 
-    protected function updateField($result)
+    protected function updateField($conn, $result)
     {
         if ($this->transactionCounter && !$result) {
             $this->transactionError["'$this->transactionCounter'"] = $this->_error;
@@ -199,13 +294,12 @@ class Db implements IDatabase
      * @example query("select * from `user` where `id` = :id", array(':id'=>'2'));
      * @todo sql查询
      */
-    function query($sql, $param = array(), $mode = '')
+    function query($sql, $param = array(), $mode = 'r')
     {
-        if (empty($this->_conn)) {
-            $this->connect($this->host, $this->username, $this->password, $this->database, $this->port);
-        }
+        $conn = $this->getConnection($mode);
+        
         /** @var  $statement \PDOStatement */
-        $statement = $this->_conn->prepare($sql);
+        $statement = $conn->prepare($sql);
 
         //根据数组类型,来判断占位符的形式.
         $len = count($param);
@@ -221,13 +315,13 @@ class Db implements IDatabase
             unset($keys);
         }
 
-        if (class_exists('Random\\Config') && Config::get('debug')) {
+        if ($this->debug) {
             Debug::startCount();
         }
 
         $statement->execute();
 
-        if (class_exists('Random\\Config') && Config::get('debug')) {
+        if ($this->debug) {
             $str = $statement->queryString;
             if (!empty($param)) {
                 for ($i = 0; $i < $len; $i++) {
@@ -238,7 +332,7 @@ class Db implements IDatabase
             Debug::endCount($str);
         }
 
-        $this->updateField($statement);
+        $this->updateField($conn, $statement);
         return $statement;
     }
 
@@ -253,7 +347,12 @@ class Db implements IDatabase
      */
     function close()
     {
-        $this->_conn = null;
+        $this->_connLink['master'] = null;
+        if (isset($this->_connLink['slave']) && !empty($this->_connLink['slave'])) {
+            foreach ($this->_connLink['slave'] as &$value) {
+                $value = null;
+            }
+        }
     }
 
     function __destruct()

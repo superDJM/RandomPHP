@@ -37,12 +37,31 @@ $config = array(
     'suffix' => 'html',
     //数据库设置
     'database' => array(
-        'type' => 'mysqli',
+        'type' => 'mysql',
         'host' => '127.0.0.1',
         'username' => 'root',
         'password' => '',
         'database' => 'randomphp',
         'port' => 3306,
+        // 数据库部署方式:0 集中式(单一服务器),1 分布式(主从服务器)
+        'deploy' => 0,
+        // 数据库读写是否分离 主从式有效
+        'rw_separate' => false,
+        // 读写分离后 主服务器数量
+        'master_num' => 1,
+        // 指定从服务器序号
+        'slave_no' => '',
+        'slave' => array(
+            0 => array(
+                'type' => 'mysql',
+                'host' => '127.0.0.1',
+                'username' => 'root',
+                'password' => '',
+                'database' => 'randomphp',
+                'port' => 3306,
+                'weight' => '1',
+            )
+        )
     ),
     //session设置
     'session' => array(
