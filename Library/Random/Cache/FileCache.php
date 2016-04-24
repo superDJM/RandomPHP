@@ -7,9 +7,8 @@
  */
 
 namespace Random\Cache;
-use Random\Config;
-use Random\IDataCache;
 use Random\Exception;
+use Random\IDataCache;
 
 /**
  * 实现文件缓存类
@@ -17,19 +16,35 @@ use Random\Exception;
 
 class FileCache implements IDataCache
 {
-    static $_dir;
-    static $_prefix;
+    protected $_dir;
+    protected $_prefix;
 
-    public function __construct()
+    /**
+     * @var array 默认配置
+     */
+    protected $_config = array(
+        'dir' => '/tmp/cache',
+        'prefix' => 'randomphp',
+    );
+
+    /**
+     * FileCache constructor.
+     * @param $config array 配置项
+     * @throws Exception
+     */
+    public function __construct($config = array())
     {
-        $dir   = Config::get('file_cache_dir');
-        self::$_prefix = Config::get('cache_prefix');
-        self::$_dir = BASE_ROOT.$dir.'/FileCache';
-        if (!is_dir(self::$_dir)) {
-            if( !mkdir(self::$_dir, 0777, true) ){
-                throw new Exception("创建".self::$_dir."文件夹失败");
+        $this->_config = array_merge($this->_config, $config);
+
+        $this->_dir = $this->_config['dir'];
+        $this->_prefix = $this->_config['prefix'];
+        if (!is_dir($this->_dir)) {
+            if (!mkdir($this->_dir, 0775, true)) {
+                throw new Exception("创建" . $this->_dir . "文件夹失败");
             }
+            chmod($this->_dir, 0775);
         }
+
     }
 
     /**
@@ -42,7 +57,7 @@ class FileCache implements IDataCache
     public function set($key, $data, $lifetime = 0)
     {
         $file = $this->getFileDir($key);
-        $this->pushContents($file, $data, (int)($lifetime));
+        return $this->pushContents($file, $data, (int)($lifetime));
     }
 
     /**
@@ -81,11 +96,11 @@ class FileCache implements IDataCache
      */
     public function clear()
     {
-        $files = scandir(self::$_dir);
+        $files = scandir($this->_dir);
         if ($files) {
             foreach ($files as $file) {
-                if ($file != '.' && $file != '..' && is_file(self::$_dir.'/'.$file)){
-                    unlink(self::$_dir.'/'.$file);   
+                if ($file != '.' && $file != '..' && is_file($this->_dir . '/' . $file)) {
+                    unlink($this->_dir . '/' . $file);   
                 }
             }
         }
@@ -103,12 +118,12 @@ class FileCache implements IDataCache
     
     protected function getFileDir($key)
     {
-        return self::$_dir.'/'.$this->key2FileName($key);
+        return $this->_dir . '/' . $this->key2FileName($key);
     }
 
     protected function key2FileName($key)
     {
-        return md5(self::$_prefix."$key");
+        return md5($this->_prefix . "$key");
     }
 
     protected function getContents($file)

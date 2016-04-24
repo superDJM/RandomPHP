@@ -56,18 +56,14 @@ $config = array(
         'suffix' => 'randomphp'
     ),
     //cache设置
-    'cache_type' => 'file', //缓存类型(file, redis, memcached)
-    'cache_prefix' => 'RandomPHP',
-    'file_cache_dir'  => 'Temp/Cache',
-    //redis设置
-    'redis_options' => array(
-        'host' => '127.0.0.1',
-        'port' => 6379,
-    ),
-    //memcache设置
-    'memcached_options' => array(
-        'host' => '127.0.0.1',
-        'port' => 11211,
+    'cache' => array(
+        'type' => 'file',   //缓存类型(file, redis, memcached)
+        'prefix' => 'randomphp',
+        'dir' => BASE_ROOT . '/Temp/Cache',
+        'option' => array(
+            'host' => '127.0.0.1',
+            'port' => '11211',
+        )
     ),
 );
 

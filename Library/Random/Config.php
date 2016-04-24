@@ -23,10 +23,13 @@ class Config
 
     /** @var string 配置文件所在目录 */
     protected $path;
+
     /** @var array 存放配置的数组 */
     protected $configs = array();
+
     /** @var bool 标志位:配置文件是否全部加载成功 */
     protected $finish = false;
+
     static $instance;
 
     function __construct($path)
