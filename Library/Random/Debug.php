@@ -18,14 +18,14 @@ class Debug
 {
 
     /**
-     * @var float 开始运行时间
+     * @var array 开始运行时间
      */
-    static $startTime = array();
+    private static $startTime = array();
 
     /**
-     * @var float 开始占用内存
+     * @var array 开始占用内存
      */
-    static $startMem = array();
+    private static $startMem = array();
 
 
     /**
@@ -75,7 +75,7 @@ class Debug
      * @author DJM <op87960@gmail.com>
      * @todo 转换大小为合适的单位
      */
-    static function convert($size)
+    private static function convert($size)
     {
         $unit = array('b', 'kb', 'mb', 'gb', 'tb', 'pb');
         return ($size) ? round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i] : '0kb';
