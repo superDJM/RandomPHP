@@ -156,6 +156,9 @@ class Core
         //注册Request对象
         Register::set('request', $request);
 
+        //注册Cache对象
+        Register::set('cache', Factory::getCache());
+
         //钩子
         Hook::listen('APP_START');
 

@@ -18,6 +18,18 @@ function redirect($url, $code = 302)
     exit;
 }
 
+/**
+ * @param $obj object 任意对象
+ * @author DJM <op87960@gmail.com>
+ * @todo
+ */
+function dump($obj)
+{
+    echo "<pre>";
+    var_dump($obj);
+    echo "</pre>";
+}
+
 function url()
 {
 

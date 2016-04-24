@@ -210,13 +210,13 @@ class Db implements IDatabase
         //根据数组类型,来判断占位符的形式.
         $len = count($param);
         $flag = '';
-        if ($this->is_assoc($param)) {
+        if (strpos($sql, ':')) {
             $flag = ':';
         }
         if ($len) {
-            $keys = array_keys($param);
             for ($i = 0; $i < $len; $i++) {
-                $statement->bindParam($flag . $keys[$i], $param[$keys[$i]]);
+                $type = isset($this->_type[$param[$i][2]]) ? $this->_type[$param[$i][2]] : \PDO::PARAM_STR;
+                $statement->bindParam($flag . $param[$i][0], $param[$i][1], $type);
             }
             unset($keys);
         }
@@ -230,8 +230,8 @@ class Db implements IDatabase
         if (class_exists('Random\\Config') && Config::get('debug')) {
             $str = $statement->queryString;
             if (!empty($param)) {
-                foreach ($param as $key => $value) {
-                    $str = str_replace(":$key", $value, $str);
+                for ($i = 0; $i < $len; $i++) {
+                    $str = str_replace($flag . $param[$i][0], $param[$i][1], $str);
                 }
             }
 

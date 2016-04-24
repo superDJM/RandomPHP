@@ -10,6 +10,15 @@ namespace Random\Db;
 
 class Pdo extends Db
 {
+    /**
+     * @var array pdo数据类型
+     */
+    private $_type = array(
+        'int' => \PDO::PARAM_INT,
+        'varchar' => \PDO::PARAM_STR,
+        'bool' => \PDO::PARAM_BOOL,
+        'null' => \PDO::PARAM_NULL,
+    );
 
     /**
      * @param $host
