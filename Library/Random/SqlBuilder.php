@@ -8,7 +8,6 @@
 /*
  * Example:
  *    $sql->select(array('id', 'name', 'age'))->buildSql();
- *    $sql->where("id=%d AND name=%s", array(1, 'A'))->select()->buildSql();
  *    $sql->where(array('id'=>1, 'name'=>'A'))->select()->buildSql();
  *    $sql->update(array('name'=>'A', 'age'=>15))->where("id=1")->buildSql();
  *    $sql->add(array('id' => 16, 'name'=>'H', 'age'=>15))->buildSql();
@@ -56,18 +55,15 @@ class SqlBuilder
      *
      * @access public
      * @param  mixed $where
-     * @param  $vals
      * @return $this
-     * @example  where("name='A'") Or where("name=%s", array('A')) Or where(array('id'=>'1', 'name'=>'A'))
+     * @example  where("name='A'") Or where(array('id'=>'1', 'name'=>'A'))
      */
-    public function where($where="1=1",$vals=null)
+    public function where($where="1=1")
     {
-        if ($vals==null && is_string($where)) {
-            $this->_where = " WHERE ".$where;
-        } elseif (is_string($where) && is_array($vals)) {
-            $vals = array_map(array($this, "check"), $vals);
-            $this->_where = " WHERE ".vsprintf($where,$vals);
-        } elseif (is_array($where)) {
+        if (is_string($where)) {
+            $where = $this->str2arr($where);
+        }
+        if (is_array($where)) {
             $this->_where = " WHERE";
             $where = $this->checkArrayVal($where, __FUNCTION__);
             foreach ($where as $key => $value) {
@@ -120,7 +116,7 @@ class SqlBuilder
     }
 
     /**
-     * @return array('sql'=>sql语句, 'option'=>array('param'=>参数数组, 'type'=>读写类型, 'table'=>表名))
+     * @return array('sql'=>sql语句, 'option'=>array('param'=>参数数组, 'mode'=>读写类型, 'table'=>表名))
      * @todo 构建sql语句
      */
     public function buildSql()
@@ -373,5 +369,27 @@ class SqlBuilder
         }
         $this->resetargs();
         return $sql;
+    }
+
+    /**
+     * @param string $str
+     * @return array 参数数组
+     * @todo 处理以string形式传入的where语句
+     */
+    protected function str2arr($str)
+    {
+        $return = array();
+        $array1 = preg_split('/\sand\s/i', $str);
+        $array1 = array_map('trim', $array1);
+        $array2 = array_map(function($param){
+            return explode('=', $param);
+        }, $array1);
+        foreach ($array2 as $arr) {
+            $arr[1] = trim($arr[1]);
+            $arr[1] = trim($arr[1], '\'');
+            $arr[1] = trim($arr[1], "\"");
+            $return[trim($arr[0])] = $arr[1];
+        }
+        return $return;
     }
 }
