@@ -9,6 +9,7 @@
 namespace Random\Cache;
 use Random\Config;
 use Random\IDataCache;
+use Random\Exception;
 
 /**
  * 实现文件缓存类
@@ -26,7 +27,7 @@ class FileCache implements IDataCache
         self::$_dir = BASE_ROOT.$dir.'/FileCache';
         if (!is_dir(self::$_dir)) {
             if( !mkdir(self::$_dir, 0777, true) ){
-                trigger_error("创建".self::$_dir."文件夹失败");
+                throw new Exception("创建".self::$_dir."文件夹失败");
             }
         }
     }
@@ -138,7 +139,12 @@ class FileCache implements IDataCache
         if (function_exists('gzcompress')) {
             $contents = gzcompress($contents);
         }
-        $result = file_put_contents($file, $contents);
+        if (is_dir(dirname($file)) && is_writable(dirname($file))) {
+            $result = file_put_contents($file, $contents);
+            chmod($file, 0775);
+        } else {
+            throw new Exception($file . '没有权限写入.');
+        }
         if ($result) {
             return true;
         } else {

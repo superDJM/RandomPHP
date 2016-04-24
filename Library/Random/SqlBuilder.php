@@ -44,7 +44,8 @@ class SqlBuilder
         $this->_type = Config::get('database')['type'];
         $data = $this->_handle->getArray("SHOW COLUMNS FROM ".$this->_table);
         foreach ($data as $arr) {
-            $this->_fields[$arr['Field']]=$arr['Type'];
+            preg_match('/(^[a-z]+)\(.*/',$arr['Type'], $match);
+            $this->_fields[$arr['Field']]=$match[1];
             if ($arr['Key']=='PRI'){
                 $this->_fields['_pk'] = $arr['Field'];
             }
@@ -127,9 +128,9 @@ class SqlBuilder
         $return['option']['param'] = $this->_param;
         $sql = $this->getSql();
         if (preg_match('/INSERT/i', $sql) || preg_match('/UPDATE/i', $sql)) {
-            $return['option']['type'] = 'w';
+            $return['option']['mode'] = 'w';
         } else {
-            $return['option']['type'] = 'r';
+            $return['option']['mode'] = 'r';
         }
         $return['option']['table'] = trim($this->_table, '`');
         $return['sql'] = $sql;
@@ -313,7 +314,10 @@ class SqlBuilder
             $val = (double)($val);
         }
         $placeholder = ':'.$key;
-        $this->_param[$key] = $val;
+        $param[] = $key;
+        $param[] = $val;
+        $param[] = $this->_fields[$key];
+        $this->_param[] = $param;
         return $placeholder;
     }
 
