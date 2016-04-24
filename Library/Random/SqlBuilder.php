@@ -61,15 +61,29 @@ class SqlBuilder
     public function where($where="1=1")
     {
         if (is_string($where)) {
-            $where = $this->str2arr($where);
-        }
-        if (is_array($where)) {
+            $this->_where      = " WHERE";
+            $str_split_by_or   = preg_split('/\sor\s/i', $where);
+            $array_split_by_or = array_map(array($this, 'str2arr'), $str_split_by_or);
+            $array_split_by_or = array_map(array($this, 'checkArrayVal'), $array_split_by_or);
+            array_map(function($array){
+                foreach ($array as $key => $value) {
+                    $this->_where .= " `$key` = ".$value." AND";
+                }
+                $this->_where = substr($this->_where,0,strlen($this->_where)-4);
+                $this->_where .= ' OR';
+            }, $array_split_by_or);
+            $this->_where = substr($this->_where,0,strlen($this->_where)-3);
+
+        } else if (is_array($where)) {
             $this->_where = " WHERE";
-            $where = $this->checkArrayVal($where, __FUNCTION__);
+            $where = $this->checkArrayVal($where);
             foreach ($where as $key => $value) {
                 $this->_where .= " `$key` = ".$value." AND";
             }
             $this->_where = substr($this->_where,0,strlen($this->_where)-4);
+
+        } else {
+            $this->_where = '';
         }
         return $this;
     }
@@ -140,7 +154,7 @@ class SqlBuilder
      */
     public function add($value=array())
     {
-        $value = $this->checkArrayVal($value, __FUNCTION__);
+        $value = $this->checkArrayVal($value);
         $this->_insert = "INSERT INTO $this->_table";
         $this->_insert .= " (`".implode('`, `', array_keys($value))."`) VALUES (".implode(', ', array_values($value)).")";
         return $this;
@@ -154,7 +168,7 @@ class SqlBuilder
     public function update($value = array())
     {
         $this->_update = "UPDATE $this->_table set";
-        $value = $this->checkArrayVal($value, __FUNCTION__);
+        $value = $this->checkArrayVal($value);
         foreach ($value as $key => $val) {
             $this->_update .= " `$key`=".$val.",";
         }
@@ -258,14 +272,11 @@ class SqlBuilder
     /**
      * @param $array
      * @return array 处理过的数组
-     * @todo 对array参数进行检测、转义和处理.
+     * @todo 对array参数进行检测和处理.
      */
-    protected function checkArrayVal($array=array(), $fun)
+    protected function checkArrayVal($array=array())
     {
         $array = $this->checkField($array);
-        if (empty($array)) {
-            $this->_error .= "Error: ".$fun."() 参数不能为空或参数错误";
-        }
         $resultArray = array_map(array($this, 'checkValue'), array_keys($array), array_values($array));
         $resultArray = array_combine(array_keys($array), array_values($resultArray));
         return $resultArray;
