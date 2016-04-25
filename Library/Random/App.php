@@ -15,8 +15,13 @@ if (version_compare(PHP_VERSION, '5.3.0', '<')) {
 //我是一个入口文件,在这里载入自动载入类
 $classLoader = require 'InitAutoLoad.php';
 
+//初始化config
+Random\Factory::getConfig(__DIR__);
+
+$config = Random\Config::get();
+
 //得到核心类
-$core = Random\Core::getInstance($classLoader);
+$core = Random\Core::getInstance($config, $classLoader);
 
 //执行
 $response = $core->init()->dispatch();

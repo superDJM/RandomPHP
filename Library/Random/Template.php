@@ -60,11 +60,13 @@ class Template
         '<?php foreach (\\1 as \\2) { echo "\\3"; } ?>',
     );
 
+    private $_config = array();
 
-    function __construct($dir)
+    function __construct($config, $dir)
     {
+        $this->_config = $config;
         $this->dir = $dir;
-        $this->com_dir = Config::get('path.TPL_TEMP_ROOT');
+        $this->com_dir = $this->_config['path']['TPL_TEMP_ROOT'];
         if (!is_dir($this->com_dir) && !mkdir($this->com_dir,0777,true)) {
             throw new Exception('RandomPHP can not create the compile_dir in '.$this->com_dir);
         }
@@ -109,7 +111,7 @@ class Template
 
         //在debug模式下存在模版文件则进行编译
         if (file_exists($path)) {
-            if (Config::get('debug') || !file_exists($comFile) || filemtime($comFile) < filemtime($path)) {
+            if ($this->_config['debug'] || !file_exists($comFile) || filemtime($comFile) < filemtime($path)) {
                 $content = file_get_contents($path);
                 $repContent = $this->extendTemplate($content);
                 //模版的替换

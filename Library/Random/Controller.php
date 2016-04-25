@@ -14,18 +14,22 @@ class Controller
     protected $module;
     protected $controller;
     protected $method;
+
+    protected $config;
+    
     /** @var string 模版目录 */
     protected $template_dir;
 
     /** @var  Template 视图 */
     private $_view;
 
-    public function __construct($module, $controller, $method)
+    public function __construct($config, $module, $controller, $method)
     {
+        $this->config = $config;
         $this->module = $module;
         $this->controller = $controller;
         $this->method = $method;
-        $this->template_dir = Config::get('path.APP_ROOT') . '/' . $module . '/View/' . $controller;
+        $this->template_dir = $this->config['path']['APP_ROOT'] . '/' . $module . '/View/' . $controller;
     }
 
     /**
@@ -57,7 +61,7 @@ class Controller
     private function getView()
     {
         if (is_null($this->_view)) {
-            $this->_view = new Template($this->template_dir);
+            $this->_view = new Template($this->config, $this->template_dir);
         }
         return $this->_view;
     }
