@@ -1,22 +1,6 @@
-<h1>
-    {if $name == 1}
-
-    <h2>asdb</h2>
-
-    {else }
-
-    no
-
-    {/if}
-
-    {if $name != 2}
-    <a>123</a>
-    {/if}
-    <ul>
-        {foreach $arr as $val }
-
-        <li>name:$val</li>
-
-        {/foreach}
-    </ul>
-</h1>
+{extend name = 'mid.html'}
+{block name ='title'}randomPHP{/block}
+{block name = 'nothing'}nothing{/block}
+{block name = 'body'}
+{$act} {$name}！
+{/block}
