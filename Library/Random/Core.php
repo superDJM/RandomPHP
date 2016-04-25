@@ -22,22 +22,25 @@ class Core
 
     protected static $instance;
     private $_classLoader;
+    private $_config;
 
-    private function __construct($classLoader)
+    private function __construct($config, $classLoader)
     {
         $this->_classLoader = $classLoader;
+        $this->_config = $config;
     }
 
     /**
      * @param $classLoader
+     * @param $config array
      * @return Core
      * @author DJM <op87960@gmail.com>
      * @todo 取得Core的实例
      */
-    static function getInstance($classLoader)
+    static function getInstance($config, $classLoader)
     {
         if (empty(self::$instance)) {
-            self::$instance = new self($classLoader);
+            self::$instance = new self($config, $classLoader);
         }
         return self::$instance;
     }
@@ -58,15 +61,15 @@ class Core
         Factory::getConfig(__DIR__);
 
         //debug配置
-        $debug = Config::get('debug');
+        $debug = $this->_config['debug'];
 
         //错误文件显示偏移量
-        $lineOffset = Config::get('line_offset');
+        $lineOffset = $this->_config['line_offset'];
 
         //注册异常处理
         Exception::Register($debug, $lineOffset);
 
-        $routerConfig = Config::get('router');
+        $routerConfig = $this->_config['router'];
         if (is_array($routerConfig)) {
             //根据配置载入命名空间
             foreach ($routerConfig as $key => $value) {
@@ -75,7 +78,7 @@ class Core
         }
 
         //加载钩子
-        $hookConfig = Config::get('hook');
+        $hookConfig = $this->_config['hook'];
         if (is_array($hookConfig)) {
             foreach ($hookConfig as $key => $value) {
                 Hook::add($key, $value);
@@ -114,7 +117,7 @@ class Core
         list($module, $controller, $method) = Router::parseUrl();
 
         //检查是否存在模块
-        if (!is_dir(Config::get('path.APP_ROOT') . '/' . $module)) {
+        if (!is_dir($this->_config['path.APP_ROOT'] . '/' . $module)) {
             throw new \Exception('404,module:' . $module . ' not found');
         }
 
@@ -134,7 +137,7 @@ class Core
         //使用反射类
         $rClass = new \ReflectionClass($controllerNameSpace);
 
-        $newRClass = $rClass->newInstanceArgs(array($module, $controller, $method));
+        $newRClass = $rClass->newInstanceArgs(array($this->_config, $module, $controller, $method));
 
         $rMethod = $rClass->getMethod($method);
 
@@ -176,7 +179,7 @@ class Core
         $args[] = $request;
 
         //debug统计
-        if (Config::get('debug')) {
+        if ($this->_config['debug']) {
             Debug::startCount();
         }
         //执行目标方法
@@ -186,7 +189,7 @@ class Core
         //如果实例方法没有返回Response对象,则new一个空对象,防止send方法调用失败
         if (!($response instanceof Response)) {
             $response = new Response('');
-            if (Config::get('debug')) {
+            if ($this->_config['debug']) {
                 trigger_error('response is no defined!');
             }
         }
@@ -195,7 +198,7 @@ class Core
         Hook::listen('APP_END');
 
         //统计输出
-        if (Config::get('debug')) {
+        if ($this->_config['debug']) {
             Debug::endCount('总运行时间:');
         }
         
