@@ -117,7 +117,7 @@ class Core
         list($module, $controller, $method) = Router::parseUrl();
 
         //检查是否存在模块
-        if (!is_dir($this->_config['path.APP_ROOT'] . '/' . $module)) {
+        if (!is_dir($this->_config['path']['APP_ROOT'] . '/' . $module)) {
             throw new \Exception('404,module:' . $module . ' not found');
         }
 

@@ -29,7 +29,7 @@ class Controller
         $this->module = $module;
         $this->controller = $controller;
         $this->method = $method;
-        $this->template_dir = $this->config['path.APP_ROOT'] . '/' . $module . '/View/' . $controller;
+        $this->template_dir = $this->config['path']['APP_ROOT'] . '/' . $module . '/View/' . $controller;
     }
 
     /**

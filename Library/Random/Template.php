@@ -66,7 +66,7 @@ class Template
     {
         $this->_config = $config;
         $this->dir = $dir;
-        $this->com_dir = $this->_config['path.TPL_TEMP_ROOT'];
+        $this->com_dir = $this->_config['path']['TPL_TEMP_ROOT'];
         if (!is_dir($this->com_dir) && !mkdir($this->com_dir,0777,true)) {
             throw new Exception('RandomPHP can not create the compile_dir in '.$this->com_dir);
         }

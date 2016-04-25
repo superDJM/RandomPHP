@@ -64,9 +64,10 @@ class Exception extends \Exception
     {
         ob_clean();
         ob_start();
-        $errorMsg = "filename:{$exception->getFile()} in line {$exception->getLine()}<br/>" . $exception->getMessage() . "<br/>";
+        $errorMsg = '<pre>';
+        $errorMsg .= "filename:{$exception->getFile()} in line {$exception->getLine()}<br/>" . $exception->getMessage() . "<br/>";
         $errorMsg .= self::getFileInfo($exception->getFile(), $exception->getLine(), self::$lineOffset);
-        echo $errorMsg, '<br/><pre>', $exception->getTraceAsString(), '</pre>';
+        echo $errorMsg, '<br/></pre><pre>', $exception->getTraceAsString(), '</pre>';
         ob_end_flush();
         exit($exception->getCode());
     }
