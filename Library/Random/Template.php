@@ -138,7 +138,9 @@ class Template
     }
 
     /**
-     * @param string $content
+     * @param $content
+     * @author  MZ
+     * @todo 继承、替换、引用
      */
     function extendTemplate ($content = ''){
         $isextend = $this->isextend($content);
@@ -156,7 +158,11 @@ class Template
         return $content;
     }
 
-    //继承及替换
+    /**
+     * @param $content
+     * @author  MZ
+     * @todo 继承及替换block
+     */
     function extend($content)
     {
         //提前获取是否继承和替换
@@ -171,6 +177,11 @@ class Template
 
         return $content;
     }
+    /**
+     * @param $isblock
+     * @author  MZ
+     * @todo 获取替换block的正则表达式
+     */
     function getblockrp($isblock)
     {
         for ($i=0; $i < count($isblock['blockname']); $i++) {
@@ -178,6 +189,11 @@ class Template
         }
         return $blockrp;
     }
+    /**
+     * @param $content
+     * @author  MZ
+     * @todo 获取继承的文件内容（除去无关东西）
+     */
     function getextend($extendname,$content)
     {
         $extendpath = $this->dir . '/' . $extendname ;
@@ -191,7 +207,11 @@ class Template
         }
 
     }
-    //获取引用内容及替换正则
+    /**
+     * @param $isinclude $content
+     * @author  MZ
+     * @todo 获取引用内容及替换正则
+     */
     function getinclude($isinclude,$content)
     {
         for ($i=0; $i < count($isinclude['includename']); $i++) {
@@ -205,7 +225,12 @@ class Template
         }
         return ['includecontent'=>$includecontent,'includerp'=>$includerp];
     }
-    function isextend($content) //$extendname[0][0]==模板值
+    /**
+     * @param  $content
+     * @author  MZ
+     * @todo $extendname[0][0]==模板值,返回匹配模板名数字及继承名
+     */
+    function isextend($content)
     {
         $content  = $this->quitnote($content);
         $extendrp = '/{\s*extend\s*name\s*=\s*[\'"].*[\'"]\s*}/Us';
@@ -213,6 +238,11 @@ class Template
         $extendname = $this->getfilename($extendHtml);
         return ['count'=>$count,'extendname'=>$extendname];
     }
+    /**
+     * @param  $content
+     * @author  MZ
+     * @todo $blockname[*][1];$blockcontent[0][*]为block名和内容,返回匹配名数字、名字和内容
+     */
     function isblock($content)//$blockname[*][1];$blockcontent[0][*];
     {
         $content = $this->quitnote($content);
@@ -225,6 +255,11 @@ class Template
         }
         return ['count'=>$count,'blockname'=>$blockname,'blockcontent'=>$blockcontent];
     }
+    /**
+     * @param  $content
+     * @author  MZ
+     * @todo $includename[*][0]==引用模板值,返回匹配引用字数和模板名
+     */
     function isinclude($content) //$includename[*][0]==模板值
     {
         $content  = $this->quitnote($content);
@@ -233,7 +268,11 @@ class Template
         $includename = $this->getfilename($includeHtml);
         return ['count'=>$count,'includename'=>$includename];
     }
-
+    /**
+     * @param  $content
+     * @author  MZ
+     * @todo 去注释函数
+     */
     function quitnote($content){
         $note1 = '/\/(\*).*(\*)\//Us';   //去掉/**/
         $note2 = '/<!--.*-->/Us';         //去掉<!-- --!>
@@ -241,6 +280,11 @@ class Template
         $content = preg_replace($note2,null,  $content);
         return $content;
     }
+    /**
+     * @param  $content
+     * @author  MZ
+     * @todo 去block函数{block name = 'sa'}和{/block}
+     */
     function qublock($content)
     {
         $blkfirst = '/{\s*block\s*name\s*=\s*["\'].*["\']\s*}/Us';
@@ -249,7 +293,12 @@ class Template
         $content = preg_replace($blkend,null,$content);
         return  $content;
     }
-    //获取文件名函数
+
+    /**
+     * @param  $content
+     * @author  MZ
+     * @todo  获取文件名函数，去掉‘’和无关的东西
+     */
     function getfilename($isexd){
         // var_dump($isexd);
         if($isexd[0]){
