@@ -141,8 +141,9 @@ class Template
 
     /**
      * @param $content
+     * @return $content
      * @author  MZ
-     * @todo 继承、替换、引用
+     * @todo 继承、替换、引用,模板继承入口函数
      */
     function extendTemplate ($content = ''){
         $isExtend = $this->isExtend($content);
@@ -150,18 +151,17 @@ class Template
         if ($isExtend['count']) {
             $content    = $this->extend($content);
         }
-        // var_dump($content);
         //替换引用，得到引用后内容
         $isInclude = $this->isInclude($content);
         $include = $this->getInclude($isInclude,$content);
         $content = preg_replace($include['includeGrep'],$include['includeContent'],$content);
-        // var_dump($content);
         $content = $this->quitBlock($content);
         return $content;
     }
 
     /**
      * @param $content
+     * @return $content
      * @author  MZ
      * @todo 继承及替换block
      */
@@ -181,18 +181,20 @@ class Template
     }
     /**
      * @param $isBlock
+     * @return $blockGrep;
      * @author  MZ
-     * @todo 获取替换block的正则表达式
+     * @todo 从$isBlock['blockName']遍历，获取替换block的正则表达式
      */
     function getBlockGrep($isBlock)
     {
-        for ($i=0; $i < count($isBlock['blockname']); $i++) {
-            $blockGrep[] = '/{\s*block\s*name\s*=\s*["\']'.$isBlock['blockname'][$i][1].'\s*["\']\s*}.*{\s*\/\s*block\s*}/Us';
+        for ($i=0; $i < count($isBlock['blockName']); $i++) {
+            $blockGrep[] = '/{\s*block\s*name\s*=\s*["\']'.$isBlock['blockName'][$i][1].'\s*["\']\s*}.*{\s*\/\s*block\s*}/Us';
         }
         return $blockGrep;
     }
     /**
-     * @param $content
+     * @param $extendName,$content
+     * @return $this->extend($exdconp);调用extend函数返回其中结果
      * @author  MZ
      * @todo 获取继承的文件内容（除去无关东西）
      */
@@ -211,6 +213,8 @@ class Template
     }
     /**
      * @param $isInclude $content
+     * @return 数组 内容'includeContent'=>$includeContent,'includeGrep'=>$includeGrep
+     * 分别为引用内容,引用的正则
      * @author  MZ
      * @todo 获取引用内容及替换正则
      */
@@ -225,12 +229,15 @@ class Template
             }
             $includeGrep[] = '/{\s*include\s*name\s*=\s*[\'"].*'.$isInclude['includeName'][$i][1].'[\'"]\s*}/Us';
         }
-        return ['includeContent'=>$includeContent,'includeGrep'=>$includeGrep];
+        return array('includeContent'=>$includeContent,'includeGrep'=>$includeGrep);
     }
     /**
      * @param  $content
+     * @return 数组 内容为'count'=>$count,'extendName'=>$extendName
+     * 分别为匹配次数，匹配的继承文件名的数组
+     * 数组用法$extendName[0][0] ==匹配的继承文件名,
      * @author  MZ
-     * @todo $extendName[0][0]==模板值,返回匹配模板名数字及继承名
+     * @todo 匹配{extend name = 'name'},返回相关内容
      */
     function isExtend($content)
     {
@@ -238,14 +245,19 @@ class Template
         $extendGrep = '/{\s*extend\s*name\s*=\s*[\'"].*[\'"]\s*}/Us';
         $count    = preg_match_all($extendGrep, $content ,$extendHtml);
         $extendName = $this->getFileName($extendHtml);
-        return ['count'=>$count,'extendName'=>$extendName];
+        return array('count'=>$count,'extendName'=>$extendName);
     }
+
+
     /**
      * @param  $content
+     * @return 数组 内容为'count'=>$count,'blockName'=>$blockName,'blockContent'=>$blockContent
+     * 分别为匹配次数，block名和内容的数组
+     * 数组用法$blockName[*][1];$blockContent[0][*]为block名和内容,
      * @author  MZ
-     * @todo $blockname[*][1];$blockContent[0][*]为block名和内容,返回匹配名数字、名字和内容
+     * @todo 匹配{block name = 'name'}{/block}，返回相关内容
      */
-    function isBlock($content)//$blockname[*][1];$blockContent[0][*];
+    function isBlock($content)//$blockName[*][1];$blockContent[0][*];
     {
         $content = $this->quitNote($content);
         $blkrpl = '/{\s*block\s*name\s*=\s*[\'"].*[\'"]\s*}.*{\s*\/\s*block\s*}/Us';     //获取代码块
@@ -253,25 +265,29 @@ class Template
         $count = preg_match_all($blkrpl, $content ,$blockContent);
         if ($count) {
             preg_match_all($blkrps, $content ,$blkname);
-            $blockname=$this->getFileName($blkname);
+            $blockName=$this->getFileName($blkname);
         }
-        return ['count'=>$count,'blockname'=>$blockname,'blockContent'=>$blockContent];
+        return array('count'=>$count,'blockName'=>$blockName,'blockContent'=>$blockContent);
     }
     /**
      * @param  $content
+     * @return 一个数组'count'=>$count,'includeName'=>$includeName;
+     * 分别为引用次数和带模板名的数组
+     * $includeName[*][0]为引用值
      * @author  MZ
-     * @todo $includeName[*][0]==引用模板值,返回匹配引用字数和模板名
+     * @todo 匹配{include name = 'name'},返回相关内容
      */
-    function isInclude($content) //$includeName[*][0]==模板值
+    function isInclude($content) 
     {
         $content  = $this->quitNote($content);
         $includeGrep = '/{\s*include\s*name\s*=\s*[\'"].*[\'"]\s*}/Us';
         $count    = preg_match_all($includeGrep, $content ,$includeHtml);
         $includeName = $this->getFileName($includeHtml);
-        return ['count'=>$count,'includeName'=>$includeName];
+        return array('count'=>$count,'includeName'=>$includeName);
     }
     /**
      * @param  $content
+     * @return $content
      * @author  MZ
      * @todo 去注释函数
      */
@@ -284,6 +300,7 @@ class Template
     }
     /**
      * @param  $content
+     * @return $content
      * @author  MZ
      * @todo 去block函数{block name = 'sa'}和{/block}
      */
@@ -297,18 +314,18 @@ class Template
     }
 
     /**
-     * @param  $content
+     * @param  $handle
+     * @return $FileName 
      * @author  MZ
-     * @todo  获取文件名函数，去掉‘’和无关的东西
+     * @todo  获取文件名函数，去掉‘’和一些无关的东西
      */
-    function getFileName($isexd){
-        // var_dump($isexd);
-        if($isexd[0]){
-            for ($i=0; $i < count($isexd[0]); $i++) {
-                preg_match_all("/['\"].*['\"]/",$isexd[0][$i],$arr);
-                $arr2[] = preg_split("/['\"]/", $arr[0][0]);//去字符串''
+    function getFileName($handle){
+        if($handle[0]){
+            for ($i=0; $i < count($handle[0]); $i++) {
+                preg_match_all("/['\"].*['\"]/",$handle[0][$i],$arr);
+                $FileName[] = preg_split("/['\"]/", $arr[0][0]);//去字符串''
             }
-            return $arr2;
+            return $FileName;
         }else{
             return null;
         }
