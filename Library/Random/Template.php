@@ -145,18 +145,18 @@ class Template
      * @todo 继承、替换、引用
      */
     function extendTemplate ($content = ''){
-        $isextend = $this->isextend($content);
+        $isExtend = $this->isExtend($content);
         //继承及block内容替换，得到父模板以及把block替换后的内容
-        if ($isextend['count']) {
+        if ($isExtend['count']) {
             $content    = $this->extend($content);
         }
         // var_dump($content);
         //替换引用，得到引用后内容
-        $isinclude = $this->isinclude($content);
-        $include = $this->getinclude($isinclude,$content);
-        $content = preg_replace($include['includerp'],$include['includecontent'],$content);
+        $isInclude = $this->isInclude($content);
+        $include = $this->getInclude($isInclude,$content);
+        $content = preg_replace($include['includeGrep'],$include['includeContent'],$content);
         // var_dump($content);
-        $content = $this->qublock($content);
+        $content = $this->quitBlock($content);
         return $content;
     }
 
@@ -168,40 +168,40 @@ class Template
     function extend($content)
     {
         //提前获取是否继承和替换
-        $isextend = $this->isextend($content);
-        $isblock = $this->isblock($content);
+        $isExtend = $this->isExtend($content);
+        $isBlock = $this->isBlock($content);
         //继承就获得继承的内容
-        if ($isextend['count']) {
-            $content = $this->getextend($isextend['extendname'][0][1],$content);
+        if ($isExtend['count']) {
+            $content = $this->getContent($isExtend['extendName'][0][1],$content);
         }
-        $blockrp = $this->getblockrp($isblock); //得到block替换的正则及替换
-        $content = preg_replace($blockrp,$isblock['blockcontent'][0],$content);
+        $blockGrep = $this->getBlockGrep($isBlock); //得到block替换的正则及替换
+        $content = preg_replace($blockGrep,$isBlock['blockContent'][0],$content);
 
         return $content;
     }
     /**
-     * @param $isblock
+     * @param $isBlock
      * @author  MZ
      * @todo 获取替换block的正则表达式
      */
-    function getblockrp($isblock)
+    function getBlockGrep($isBlock)
     {
-        for ($i=0; $i < count($isblock['blockname']); $i++) {
-            $blockrp[] = '/{\s*block\s*name\s*=\s*["\']'.$isblock['blockname'][$i][1].'\s*["\']\s*}.*{\s*\/\s*block\s*}/Us';
+        for ($i=0; $i < count($isBlock['blockname']); $i++) {
+            $blockGrep[] = '/{\s*block\s*name\s*=\s*["\']'.$isBlock['blockname'][$i][1].'\s*["\']\s*}.*{\s*\/\s*block\s*}/Us';
         }
-        return $blockrp;
+        return $blockGrep;
     }
     /**
      * @param $content
      * @author  MZ
      * @todo 获取继承的文件内容（除去无关东西）
      */
-    function getextend($extendname,$content)
+    function getContent($extendName,$content)
     {
-        $extendpath = $this->dir . '/' . $extendname ;
+        $extendPath = $this->dir . '/' . $extendName ;
 
-        if (file_exists($extendpath)) {
-            $exdconp = file_get_contents($extendpath);
+        if (file_exists($extendPath)) {
+            $exdconp = file_get_contents($extendPath);
             return $this->extend($exdconp);
         }else{
             echo "错误";
@@ -210,72 +210,72 @@ class Template
 
     }
     /**
-     * @param $isinclude $content
+     * @param $isInclude $content
      * @author  MZ
      * @todo 获取引用内容及替换正则
      */
-    function getinclude($isinclude,$content)
+    function getInclude($isInclude,$content)
     {
-        for ($i=0; $i < count($isinclude['includename']); $i++) {
-            $includepath = $this->dir .'/'.$isinclude['includename'][$i][1];
-            if (file_exists( $includepath)) {
-                $includecontent[] = file_get_contents($includepath);
+        for ($i=0; $i < count($isInclude['includeName']); $i++) {
+            $includePath = $this->dir .'/'.$isInclude['includeName'][$i][1];
+            if (file_exists( $includePath)) {
+                $includeContent[] = file_get_contents($includePath);
             }else{
-                $includecontent[] = null;
+                $includeContent[] = null;
             }
-            $includerp[] = '/{\s*include\s*name\s*=\s*[\'"].*'.$isinclude['includename'][$i][1].'[\'"]\s*}/Us';
+            $includeGrep[] = '/{\s*include\s*name\s*=\s*[\'"].*'.$isInclude['includeName'][$i][1].'[\'"]\s*}/Us';
         }
-        return ['includecontent'=>$includecontent,'includerp'=>$includerp];
+        return ['includeContent'=>$includeContent,'includeGrep'=>$includeGrep];
     }
     /**
      * @param  $content
      * @author  MZ
-     * @todo $extendname[0][0]==模板值,返回匹配模板名数字及继承名
+     * @todo $extendName[0][0]==模板值,返回匹配模板名数字及继承名
      */
-    function isextend($content)
+    function isExtend($content)
     {
-        $content  = $this->quitnote($content);
-        $extendrp = '/{\s*extend\s*name\s*=\s*[\'"].*[\'"]\s*}/Us';
-        $count    = preg_match_all($extendrp, $content ,$extendHtml);
-        $extendname = $this->getfilename($extendHtml);
-        return ['count'=>$count,'extendname'=>$extendname];
+        $content  = $this->quitNote($content);
+        $extendGrep = '/{\s*extend\s*name\s*=\s*[\'"].*[\'"]\s*}/Us';
+        $count    = preg_match_all($extendGrep, $content ,$extendHtml);
+        $extendName = $this->getFileName($extendHtml);
+        return ['count'=>$count,'extendName'=>$extendName];
     }
     /**
      * @param  $content
      * @author  MZ
-     * @todo $blockname[*][1];$blockcontent[0][*]为block名和内容,返回匹配名数字、名字和内容
+     * @todo $blockname[*][1];$blockContent[0][*]为block名和内容,返回匹配名数字、名字和内容
      */
-    function isblock($content)//$blockname[*][1];$blockcontent[0][*];
+    function isBlock($content)//$blockname[*][1];$blockContent[0][*];
     {
-        $content = $this->quitnote($content);
+        $content = $this->quitNote($content);
         $blkrpl = '/{\s*block\s*name\s*=\s*[\'"].*[\'"]\s*}.*{\s*\/\s*block\s*}/Us';     //获取代码块
         $blkrps = '/{\s*block\s*name\s*=\s*[\'"].*[\'"]\s*}/';
-        $count = preg_match_all($blkrpl, $content ,$blockcontent);
+        $count = preg_match_all($blkrpl, $content ,$blockContent);
         if ($count) {
             preg_match_all($blkrps, $content ,$blkname);
-            $blockname=$this->getfilename($blkname);
+            $blockname=$this->getFileName($blkname);
         }
-        return ['count'=>$count,'blockname'=>$blockname,'blockcontent'=>$blockcontent];
+        return ['count'=>$count,'blockname'=>$blockname,'blockContent'=>$blockContent];
     }
     /**
      * @param  $content
      * @author  MZ
-     * @todo $includename[*][0]==引用模板值,返回匹配引用字数和模板名
+     * @todo $includeName[*][0]==引用模板值,返回匹配引用字数和模板名
      */
-    function isinclude($content) //$includename[*][0]==模板值
+    function isInclude($content) //$includeName[*][0]==模板值
     {
-        $content  = $this->quitnote($content);
-        $includerp = '/{\s*include\s*name\s*=\s*[\'"].*[\'"]\s*}/Us';
-        $count    = preg_match_all($includerp, $content ,$includeHtml);
-        $includename = $this->getfilename($includeHtml);
-        return ['count'=>$count,'includename'=>$includename];
+        $content  = $this->quitNote($content);
+        $includeGrep = '/{\s*include\s*name\s*=\s*[\'"].*[\'"]\s*}/Us';
+        $count    = preg_match_all($includeGrep, $content ,$includeHtml);
+        $includeName = $this->getFileName($includeHtml);
+        return ['count'=>$count,'includeName'=>$includeName];
     }
     /**
      * @param  $content
      * @author  MZ
      * @todo 去注释函数
      */
-    function quitnote($content){
+    function quitNote($content){
         $note1 = '/\/(\*).*(\*)\//Us';   //去掉/**/
         $note2 = '/<!--.*-->/Us';         //去掉<!-- --!>
         $content = preg_replace($note1,null,  $content);
@@ -287,7 +287,7 @@ class Template
      * @author  MZ
      * @todo 去block函数{block name = 'sa'}和{/block}
      */
-    function qublock($content)
+    function quitBlock($content)
     {
         $blkfirst = '/{\s*block\s*name\s*=\s*["\'].*["\']\s*}/Us';
         $blkend = '/{\s*\/\s*block\s*}/Us';
@@ -301,7 +301,7 @@ class Template
      * @author  MZ
      * @todo  获取文件名函数，去掉‘’和无关的东西
      */
-    function getfilename($isexd){
+    function getFileName($isexd){
         // var_dump($isexd);
         if($isexd[0]){
             for ($i=0; $i < count($isexd[0]); $i++) {
