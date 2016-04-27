@@ -17,22 +17,28 @@ class RedisCache implements IDataCache
 {
     private static $_handle;
     private static $_prefix;
+    protected $_config = array(
+        'prefix' => 'randomphp',
+        'option' => array(
+            'host' => '127.0.0.1',
+            'port' => '6379',
+        )
+    );
 
-    public function __construct()
+    public function __construct($config = array())
     {
-
         if (!extension_loaded('redis')){
             trigger_error("Redis拓展没开启，请检查");
         }
+        $this->_config = array_merge($this->_config, $config);
         self::$_handle = new \Redis();
-        $options = Config::get('redis_options');
-        $host =  $options['host'];
-        $port =  $options['port'];
+        $host =  $this->_config['option']['host'];
+        $port =  $this->_config['option']['port'];
 
         if (!self::$_handle->connect($host, $port)){
             trigger_error("连接Redis失败，请检查是否开启Redis服务");
         }
-        self::$_prefix = Config::get('cache_prefix');
+        self::$_prefix = $this->_config['prefix'];
     }
 
     /**

@@ -17,20 +17,28 @@ class MemcachedCache implements IDataCache
 {
     private static $_handle;
     private static $_prefix;
+    protected $_config = array(
+        'prefix' => 'randomphp',
+        'option' => array(
+            'host' => '127.0.0.1',
+            'port' => '11211',
+        )
+    );
 
-    public function __construct()
+    public function __construct($config = array())
     {
         if (!extension_loaded('memcached')){
             trigger_error("Memcached拓展没开启，请检查");
         }
-        $options = Config::get('memcached_options');
-        $host = $options['host'];
-        $port = $options['port'];
+        $this->_config = array_merge($this->_config, $config);
+        $host = $this->_config['option']['host'];
+        $port = $this->_config['option']['port'];
+
         self::$_handle = new \memcached();
         if (!self::$_handle->addServer($host, $port)){
             trigger_error("连接Memcached失败，请检查是否开启Memcached服务");
         }
-        self::$_prefix = Config::get('cache_prefix');
+        self::$_prefix = $this->_config['prefix'];
     }
 
     /**
