@@ -20,8 +20,10 @@ class Router
         $param = Array();
         //        $uri = $_SERVER['SCRIPT_NAME'];
         $uri = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '';   //使用path_info模式
-        if (!isset($_SERVER['PATH_INFO']) && !DEBUG) {
-            throw new \Exception("系统不支持path_info");
+        if (!isset($_SERVER['PATH_INFO'])) {
+            //s= 兼容模式
+            isset($_SERVER['QUERY_STRING']) && $uri = ltrim(strstr($_SERVER['QUERY_STRING'], 's='), 's=');
+//            throw new \Exception("系统不支持path_info");
         }
 
         //伪静态处理
