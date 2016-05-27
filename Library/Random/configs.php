@@ -17,7 +17,6 @@ $config = array(
         'APP_ROOT' => BASE_ROOT . '/Application',
         'DB_ROOT' => BASE_ROOT . '/Db',
         'TEMP_ROOT' => BASE_ROOT . '/Temp',
-        'TPL_TEMP_ROOT' => BASE_ROOT . '/Temp/Tpl',
     ),
     //时区设置
     'default_timezone' => 'PRC',
@@ -62,6 +61,13 @@ $config = array(
                 'weight' => '1',
             )
         )
+    ),
+    'template' => array(
+        'com_suffix' => 'tpl',
+        'TPL_TEMP_ROOT' => BASE_ROOT . '/Temp/Tpl',
+        'cache' => true,
+        'cache_suffix' => 'htm',
+        'expire' => 0,
     ),
     //session设置
     'session' => array(

@@ -50,4 +50,9 @@ class Model extends SqlBuilder
         }
     }
 
+    public function getError()
+    {
+        return $this->_handle->getError();
+    }
+
 }

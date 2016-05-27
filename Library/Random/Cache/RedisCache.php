@@ -7,7 +7,6 @@
  */
 
 namespace Random\Cache;
-use Random\Config;
 use Random\IDataCache;
 
 /**

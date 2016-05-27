@@ -9,8 +9,6 @@
 namespace Test;
 use Random\Config;
 use Random\Factory;
-use Random\DataCache;
-use Random\Cache\FileCache;
 
 /**
  * Class CacheTest

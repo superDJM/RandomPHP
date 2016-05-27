@@ -33,7 +33,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     {
         $this->initConfig('..//Library/Random');
         $this->assertEquals('PRC', Config::get('default_timezone'));
-        $this->assertEquals('mysqli', Config::get('database.type'));
+        $this->assertEquals('mysql', Config::get('database.type'));
         $this->assertEquals('c', Config::get('session.a.b'));
         $this->assertEmpty(Config::get('session.a.b.'));
         $this->assertEmpty(Config::get('a'));
@@ -51,7 +51,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $this->initConfig('..//Application/Home');
         $this->assertEquals('PRC', Config::get('default_timezone'));
         //在../Application/Home/configs.php中更新值为pdo.
-        $this->assertEquals('pdo', Config::get('database.type'));
+        $this->assertEquals('mysql', Config::get('database.type'));
         $this->assertEquals('c', Config::get('session.a.b'));
         $this->assertEmpty(Config::get('session.a.b.'));
         $this->assertEmpty(Config::get('a'));

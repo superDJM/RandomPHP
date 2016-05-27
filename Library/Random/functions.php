@@ -30,9 +30,17 @@ function dump($obj)
     echo "</pre>";
 }
 
-function url()
+/**
+ * @param $url string
+ * @return string
+ * @author DJM <op87960@gmail.com>
+ * @example "Home://Home/index" => www.xxx.com/Home/Home/index
+ * @todo 构造路由url
+ */
+function url($url)
 {
-
+//    preg_match('|([a-zA-Z]+:\/\/([a-zA-Z]+\/)|')
+    return $url;
 }
 
 

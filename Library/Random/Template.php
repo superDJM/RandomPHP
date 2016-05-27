@@ -60,13 +60,24 @@ class Template
         '<?php foreach (\\1 as \\2) { echo "\\3"; } ?>',
     );
 
-    private $_config = array();
+    private $_config = array(
+        'com_suffix' => 'tpl',
+        'TPL_TEMP_ROOT' => '/Temp/Tpl',
+        'cache' => true,
+        'cache_suffix' => 'htm',
+        'expire' => 0,
+    );
 
-    function __construct($config, $dir)
+    private $debug = false;
+
+    function __construct($dir, $config = array())
     {
-        $this->_config = $config;
+        if (is_array($config) && is_array($config['template'])) {
+            $this->_config = array_merge($this->_config, $config['template']);
+        }
+        $this->debug = $config['debug'];
         $this->dir = $dir;
-        $this->com_dir = $this->_config['path']['TPL_TEMP_ROOT'];
+        $this->com_dir = $this->_config['TPL_TEMP_ROOT'];
         if (!is_dir($this->com_dir) && !mkdir($this->com_dir,0777,true)) {
             throw new Exception('RandomPHP can not create the compile_dir in '.$this->com_dir);
         }
@@ -107,11 +118,22 @@ class Template
         unset($this->data);
 
         //编译后的tpl,暂时为写文件
-        $comFile = $this->com_dir . '/' . md5($file) . '.tpl';
+        $comFile = $this->com_dir . '/' . md5($file) . '.' . $this->_config['com_suffix'];
+
+        //缓存的html路径
+        $cacheFile = $this->com_dir . '/' . md5($file) . '.' . $this->_config['cache_suffix'];
 
         //在debug模式下存在模版文件则进行编译
         if (file_exists($path)) {
-            if ($this->_config['debug'] || !file_exists($comFile) || filemtime($comFile) < filemtime($path)) {
+            //判断是否启用缓存
+            if ($this->_config['cache']) {
+                //判断缓存是否过期
+                if (file_exists($cacheFile) && ($this->_config['expire'] == 0 || (time() - filemtime($cacheFile)) < $this->_config['expire'])) {
+                    include $cacheFile;
+                    return;
+                }
+            }
+            if ($this->debug || !file_exists($comFile) || filemtime($comFile) < filemtime($path)) {
                 $content = file_get_contents($path);
                 $repContent = $this->extendTemplate($content);
                 //模版的替换
@@ -128,20 +150,26 @@ class Template
                 } else {
                     throw new Exception($comFile . '没有权限写入.');
                 }
+                //静态缓存
+                if ($this->_config['cache']) {
+                    $content = ob_get_clean();
+                    ob_start();
+                    include $comFile;
+                    $cache = ob_get_clean();
+                    ob_start();
+                    file_put_contents($cacheFile, $cache);
+                    chmod($cacheFile, 0775);
+                    echo $content, $cache;
+                } else {
+                    include $comFile;
+                }
             }
-        } else {
-            return;
         }
-
-        include $comFile;
-
-        $content = ob_get_clean();
-        return $content;
     }
 
     /**
      * @param $content
-     * @return $content
+     * @return string
      * @author  MZ
      * @todo 继承、替换、引用,模板继承入口函数
      */
@@ -161,7 +189,7 @@ class Template
 
     /**
      * @param $content
-     * @return $content
+     * @return string
      * @author  MZ
      * @todo 继承及替换block
      */
@@ -181,7 +209,7 @@ class Template
     }
     /**
      * @param $isBlock
-     * @return $blockGrep;
+     * @return string
      * @author  MZ
      * @todo 从$isBlock['blockName']遍历，获取替换block的正则表达式
      */
@@ -213,7 +241,7 @@ class Template
     }
     /**
      * @param $isInclude $content
-     * @return 数组 内容'includeContent'=>$includeContent,'includeGrep'=>$includeGrep
+     * @return array 内容'includeContent'=>$includeContent,'includeGrep'=>$includeGrep
      * 分别为引用内容,引用的正则
      * @author  MZ
      * @todo 获取引用内容及替换正则
@@ -233,7 +261,7 @@ class Template
     }
     /**
      * @param  $content
-     * @return 数组 内容为'count'=>$count,'extendName'=>$extendName
+     * @return array 内容为'count'=>$count,'extendName'=>$extendName
      * 分别为匹配次数，匹配的继承文件名的数组
      * 数组用法$extendName[0][0] ==匹配的继承文件名,
      * @author  MZ
@@ -251,7 +279,7 @@ class Template
 
     /**
      * @param  $content
-     * @return 数组 内容为'count'=>$count,'blockName'=>$blockName,'blockContent'=>$blockContent
+     * @return array 内容为'count'=>$count,'blockName'=>$blockName,'blockContent'=>$blockContent
      * 分别为匹配次数，block名和内容的数组
      * 数组用法$blockName[*][1];$blockContent[0][*]为block名和内容,
      * @author  MZ
@@ -271,7 +299,7 @@ class Template
     }
     /**
      * @param  $content
-     * @return 一个数组'count'=>$count,'includeName'=>$includeName;
+     * @return array'count'=>$count,'includeName'=>$includeName;
      * 分别为引用次数和带模板名的数组
      * $includeName[*][0]为引用值
      * @author  MZ
@@ -287,7 +315,7 @@ class Template
     }
     /**
      * @param  $content
-     * @return $content
+     * @return string
      * @author  MZ
      * @todo 去注释函数
      */
@@ -300,7 +328,7 @@ class Template
     }
     /**
      * @param  $content
-     * @return $content
+     * @return string
      * @author  MZ
      * @todo 去block函数{block name = 'sa'}和{/block}
      */
@@ -315,7 +343,7 @@ class Template
 
     /**
      * @param  $handle
-     * @return $FileName 
+     * @return string
      * @author  MZ
      * @todo  获取文件名函数，去掉‘’和一些无关的东西
      */

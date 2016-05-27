@@ -61,7 +61,7 @@ class Controller
     private function getView()
     {
         if (is_null($this->_view)) {
-            $this->_view = new Template($this->config, $this->template_dir);
+            $this->_view = new Template($this->template_dir, $this->config);
         }
         return $this->_view;
     }

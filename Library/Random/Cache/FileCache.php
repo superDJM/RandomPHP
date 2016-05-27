@@ -23,7 +23,7 @@ class FileCache implements IDataCache
      * @var array 默认配置
      */
     protected $_config = array(
-        'dir' => '/tmp/cache',
+        'dir' => 'Temp/Cache',
         'prefix' => 'randomphp',
     );
 
