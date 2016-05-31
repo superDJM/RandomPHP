@@ -296,10 +296,13 @@ class Template
         $content = $this->quitNote($content);
         $blkrpl = '/{\s*block\s*name\s*=\s*[\'"].*[\'"]\s*}.*{\s*\/\s*block\s*}/Us';     //获取代码块
         $blkrps = '/{\s*block\s*name\s*=\s*[\'"].*[\'"]\s*}/';
+        $blockContent = array();
         $count = preg_match_all($blkrpl, $content ,$blockContent);
         if ($count) {
             preg_match_all($blkrps, $content ,$blkname);
             $blockName=$this->getFileName($blkname);
+        }else{
+            $blockName = null;
         }
         return array('count'=>$count,'blockName'=>$blockName,'blockContent'=>$blockContent);
     }
@@ -313,6 +316,7 @@ class Template
      */
     function isInclude($content) 
     {
+
         $content  = $this->quitNote($content);
         $includeGrep = '/{\s*include\s*name\s*=\s*[\'"].*[\'"]\s*}/Us';
         $count    = preg_match_all($includeGrep, $content ,$includeHtml);
@@ -355,6 +359,7 @@ class Template
      */
     function getFileName($handle){
         if($handle[0]){
+            $FileName = array();
             for ($i=0; $i < count($handle[0]); $i++) {
                 preg_match_all("/['\"].*['\"]/",$handle[0][$i],$arr);
                 $FileName[] = preg_split("/['\"]/", $arr[0][0]);//去字符串''
