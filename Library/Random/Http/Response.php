@@ -19,7 +19,7 @@ class Response
 
     protected $code;
     protected $context;
-    protected $header;
+    protected $header = array();
     protected $context_type;
     protected $http_version = 'HTTP/1.1';
     protected $msg;

@@ -67,7 +67,7 @@ $config = array(
         'TPL_TEMP_ROOT' => BASE_ROOT . '/Temp/Tpl',
         'cache' => true,
         'cache_suffix' => 'htm',
-        'expire' => 0,
+        'expire' => 60,
     ),
     //session设置
     'session' => array(

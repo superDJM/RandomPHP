@@ -129,10 +129,13 @@ class Template
             if ($this->_config['cache']) {
                 //判断缓存是否过期
                 if (file_exists($cacheFile) && ($this->_config['expire'] == 0 || (time() - filemtime($cacheFile)) < $this->_config['expire'])) {
+                    header("Cache-Control: max-age={$this->_config['expire']}");
+                    header("Pragma: public");
                     include $cacheFile;
                     return;
                 }
             }
+            //重新编译模版
             if ($this->debug || !file_exists($comFile) || filemtime($comFile) < filemtime($path)) {
                 $content = file_get_contents($path);
                 $repContent = $this->extendTemplate($content);
@@ -150,19 +153,19 @@ class Template
                 } else {
                     throw new Exception($comFile . '没有权限写入.');
                 }
+            }
+            if ($this->_config['cache']) {
                 //静态缓存
-                if ($this->_config['cache']) {
-                    $content = ob_get_clean();
-                    ob_start();
-                    include $comFile;
-                    $cache = ob_get_clean();
-                    ob_start();
-                    file_put_contents($cacheFile, $cache);
-                    chmod($cacheFile, 0775);
-                    echo $content, $cache;
-                } else {
-                    include $comFile;
-                }
+                $content = ob_get_clean();
+                ob_start();
+                include $comFile;
+                $cache = ob_get_clean();
+                ob_start();
+                file_put_contents($cacheFile, $cache);
+                chmod($cacheFile, 0775);
+                echo $content, $cache;
+            } else {
+                include $comFile;
             }
         }
     }
@@ -215,6 +218,7 @@ class Template
      */
     function getBlockGrep($isBlock)
     {
+        $blockGrep = array();
         for ($i=0; $i < count($isBlock['blockName']); $i++) {
             $blockGrep[] = '/{\s*block\s*name\s*=\s*["\']'.$isBlock['blockName'][$i][1].'\s*["\']\s*}.*{\s*\/\s*block\s*}/Us';
         }
@@ -248,6 +252,8 @@ class Template
      */
     function getInclude($isInclude,$content)
     {
+        $includeContent = array();
+        $includeGrep = array();
         for ($i=0; $i < count($isInclude['includeName']); $i++) {
             $includePath = $this->dir .'/'.$isInclude['includeName'][$i][1];
             if (file_exists( $includePath)) {
